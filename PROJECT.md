@@ -97,7 +97,8 @@ de camada de imagem, resolvido em vanilla `motion` com zero hidratação.
 2. **Domínio final** — necessário para canonical, OG e sitemap.
 3. **Destino do CTA "Inscreva-se"** — URL do formulário de inscrição (Gupy/Eureca?).
 4. **Links reais:** redes sociais, Aviso de Cookies, Política de Privacidade.
-5. **Vídeo** do card "Assista ao vídeo" — YouTube/Vimeo ID ou arquivo.
+5. **Vídeo** — está com `rHH1sZPhw9U` (edição anterior do programa) via
+   youtube-nocookie. Trocar pelo vídeo de 2027 em `src/data/site.ts`.
 6. **Stories** — são links para conteúdos reais ou decorativos?
 7. **Foto do slide 2 do hero** — o asset de origem vem rotacionado 90° no Figma, e a rotação não sai no CSS exportado. Está usando o render do Figma (1x, 639×581) em vez do recorte 2x dos outros quatro. Fica levemente mais suave em tela retina. Resolve se o designer exportar a camada já na orientação final.
 8. **Dados do mapa** — lista completa de cidades/áreas por estado (o Figma mostra só São Paulo aberto).

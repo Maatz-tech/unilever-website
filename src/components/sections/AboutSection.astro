@@ -1,7 +1,7 @@
 ---
 import Button from '../Button.astro';
 import RevealText from '../RevealText.astro';
-import { INSCRICAO_URL, VIDEO_URL } from '../../data/site';
+import { INSCRICAO_URL } from '../../data/site';
 
 /**
  * Sobre o programa — headline, dois parágrafos e a galeria de 4 fotos.
@@ -104,7 +104,19 @@ const FOTOS = {
       <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
     </svg>
   </button>
-  <video data-video-el controls playsinline preload="none" class="video-el"></video>
+  <!-- iframe vazio até o clique: sem src, o YouTube não baixa nada nem
+       instala cookie de rastreio no carregamento da página. -->
+  <div class="video-moldura">
+    <iframe
+      data-video-el
+      src=""
+      title="Vídeo do Programa de Estágio Unilever"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  </div>
 </dialog>
 
 <style>
@@ -143,11 +155,20 @@ const FOTOS = {
     background: rgb(4 6 26 / 0.9);
   }
 
-  .video-el {
+  /* 16:9 mantido pela moldura, para o iframe não distorcer em nenhuma tela */
+  .video-moldura {
     width: min(92vw, 1100px);
     max-height: 82dvh;
+    aspect-ratio: 16 / 9;
     border-radius: 16px;
+    overflow: hidden;
     background: #000;
+  }
+  .video-moldura iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
   }
 
   .video-fechar {
@@ -170,30 +191,33 @@ const FOTOS = {
 
 <script>
   import { revealOnScroll, revealWords, prefersReducedMotion } from '../../lib/motion';
-  import { VIDEO_URL } from '../../data/site';
+  import { VIDEO_YOUTUBE_ID } from '../../data/site';
 
   revealWords('#sobre-titulo');
   revealOnScroll('#o-programa [data-reveal]');
 
   const dialog = document.querySelector<HTMLDialogElement>('#video-dialog');
-  const video = dialog?.querySelector<HTMLVideoElement>('[data-video-el]');
+  const player = dialog?.querySelector<HTMLIFrameElement>('[data-video-el]');
 
-  if (dialog && video) {
+  if (dialog && player) {
+    // nocookie + enablejsapi para poder mandar o comando de pausa ao fechar
+    const embed =
+      `https://www.youtube-nocookie.com/embed/${VIDEO_YOUTUBE_ID}` +
+      '?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
+
     document.querySelector('[data-video-abrir]')?.addEventListener('click', () => {
-      // só carrega a mídia quando o usuário pede — nada de baixar vídeo à toa
-      if (!video.src) video.src = VIDEO_URL;
+      player.src = embed;
       dialog.showModal();
-      video.play().catch(() => {});
-      // mesma entrada do VideoLightbox.jsx: mola 300/28
       if (!prefersReducedMotion()) {
         import('motion').then(({ animate }) =>
-          animate(video, { opacity: [0, 1], scale: [0.9, 1], y: [24, 0] }, { type: 'spring', stiffness: 300, damping: 28 })
+          animate(player.parentElement!, { opacity: [0, 1], scale: [0.9, 1], y: [24, 0] }, { type: 'spring', stiffness: 300, damping: 28 })
         );
       }
     });
 
+    // descarregar o src é o que garante que o vídeo pare de tocar
     const fechar = () => {
-      video.pause();
+      player.src = '';
       dialog.close();
     };
 
@@ -201,6 +225,8 @@ const FOTOS = {
     dialog.addEventListener('click', (e) => {
       if (e.target === dialog) fechar();
     });
-    dialog.addEventListener('close', () => video.pause());
+    dialog.addEventListener('close', () => {
+      player.src = '';
+    });
   }
 </script>

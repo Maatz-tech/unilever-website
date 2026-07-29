@@ -6,9 +6,11 @@
 /** URL do formulário de inscrição. TODO: confirmar destino real (ver PROJECT.md) */
 export const INSCRICAO_URL = '#inscricao';
 
-/** Vídeo do programa. TODO: trocar pelo arquivo/embed oficial (ver PROJECT.md) */
-export const VIDEO_URL =
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+/**
+ * Vídeo do programa no YouTube.
+ * TODO: trocar pelo vídeo de 2027 quando o cliente entregar (ver PROJECT.md).
+ */
+export const VIDEO_YOUTUBE_ID = 'rHH1sZPhw9U';
 
 export const NAV_LINKS = [
   { label: 'O programa', href: '#o-programa' },

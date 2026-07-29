@@ -167,6 +167,25 @@ const M_PES = { w: 370, top: 253.68 };
       >
         <span class="text-[20em] leading-[1]">Inscreva-se agora!</span>
       </a>
+
+      <!-- Navegação do carrossel. Não existe no Figma: adicionada para dar
+           controle manual ao usuário, alinhada ao CTA no desktop e abaixo dele
+           no mobile. -->
+      <ul class="absolute left-1/2 top-[596em] flex -translate-x-1/2 items-center gap-[8em]" aria-label="Escolher slide">
+        {
+          SLIDES.map((_, i) => (
+            <li>
+              <button
+                type="button"
+                data-hero-dot={i}
+                aria-label={`Slide ${i + 1} de ${SLIDES.length}`}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class="bolinha"
+              />
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 
@@ -238,6 +257,25 @@ const M_PES = { w: 370, top: 253.68 };
             >
               <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>
             </a>
+
+      <!-- Navegação do carrossel. Não existe no Figma: adicionada para dar
+           controle manual ao usuário, alinhada ao CTA no desktop e abaixo dele
+           no mobile. -->
+      <ul class="absolute left-[78.38em] top-[574em] flex items-center gap-[8em]" aria-label="Escolher slide">
+        {
+          SLIDES.map((_, i) => (
+            <li>
+              <button
+                type="button"
+                data-hero-dot={i}
+                aria-label={`Slide ${i + 1} de ${SLIDES.length}`}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class="bolinha"
+              />
+            </li>
+          ))
+        }
+      </ul>
           </div>
 
           <div class="relative h-[316em] w-[372em] shrink-0">
@@ -308,6 +346,24 @@ const M_PES = { w: 370, top: 253.68 };
     inset: 0;
     width: 1392em;
     height: 640em;
+  }
+
+  /* bolinhas do carrossel: pílula que estica quando ativa */
+  .bolinha {
+    display: block;
+    width: 8em;
+    height: 8em;
+    border-radius: 999em;
+    background: rgb(255 255 255 / 0.45);
+    cursor: pointer;
+    transition: width 300ms ease, background 300ms ease;
+  }
+  .bolinha:hover {
+    background: rgb(255 255 255 / 0.75);
+  }
+  .bolinha[aria-current='true'] {
+    width: 26em;
+    background: var(--color-cloud);
   }
 
   /* --- mobile: 390x672, full-bleed, escala livre com a viewport --- */
@@ -398,6 +454,10 @@ const M_PES = { w: 370, top: 253.68 };
 
     const irPara = (proximo: number) => {
       if (proximo === atual) return;
+      for (const dot of document.querySelectorAll<HTMLElement>('[data-hero-dot]')) {
+        dot.setAttribute('aria-current', String(Number(dot.dataset.heroDot) === proximo));
+      }
+
       slidesPorPalco.forEach((_, palco) => {
         const sai = camadas(palco, atual);
         const entra = camadas(palco, proximo);
@@ -421,6 +481,13 @@ const M_PES = { w: 370, top: 253.68 };
     };
 
     iniciar();
+
+    for (const dot of document.querySelectorAll<HTMLElement>('[data-hero-dot]')) {
+      dot.addEventListener('click', () => {
+        irPara(Number(dot.dataset.heroDot));
+        iniciar(); // reinicia o cronômetro após escolha manual
+      });
+    }
 
     for (const palco of palcos) {
       palco.addEventListener('mouseenter', parar);
