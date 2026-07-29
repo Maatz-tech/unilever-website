@@ -29,24 +29,18 @@ const COR = {
 ---
 
 <section id="jornada" class="relative overflow-hidden bg-earth py-[72px] lg:py-[120px]">
-  <!-- Traço decorativo. No Figma ele SANGRA 45px pela borda esquerda da tela —
-       é o corte que dá a sensação de continuidade com a lateral. Por isso
-       `left-[-45px]` e não `left-0`: encaixado inteiro, a forma fecha e perde o
-       efeito. A moldura tem o tamanho da caixa já rotacionada (615×646). -->
-  <div class="pointer-events-none absolute left-[-45px] top-[258px] hidden h-[646px] w-[615px] lg:block" aria-hidden="true">
-    <img
-      src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
-      alt=""
-      class="absolute left-1/2 top-1/2 h-[602px] w-[634px] -translate-x-1/2 -translate-y-1/2 -rotate-[88.81deg]"
-    />
-  </div>
+  <!-- Traço decorativo: nasce na BORDA DA TELA e termina mais à direita do que
+       a largura natural da forma, então estica com a viewport. O SVG já vem
+       pré-rotacionado (ver tl-shape.svg), por isso não há transform aqui e o
+       `preserveAspectRatio="none"` deixa ele acompanhar a caixa. -->
+  <img
+    src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute left-0 top-[258px] hidden h-[602px] w-[calc(50%-60px)] min-w-[634px] lg:block"
+  />
 
-  <!-- Em telas largas o bloco é ancorado à DIREITA (margem de 112px, a do
-       Figma) em vez de centrado: centralizado, sobrava até 1124px de vazio na
-       direita em 3440px. O traço decorativo ocupa a esquerda. -->
-  <div
-    class="container-lp relative flex flex-col items-center gap-8 px-6 lg:mr-[112px] lg:ml-auto lg:gap-16 lg:px-0"
-  >
+  <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">
 
 
     <div class="flex w-full flex-col justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
