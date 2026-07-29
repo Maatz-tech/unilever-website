@@ -1,0 +1,55 @@
+---
+/**
+ * Faixa de texto contínua entre a timeline e o rodapé.
+ *
+ * Figma: 4188:12431 (desktop) · 4204:19320 (mobile) — 135px nos dois.
+ *
+ * ⚠️ O nó do Figma tem 12 itens, mas metade está fora da área visível e diz
+ * "Programa de Estágio Unilever **2026**" numa fonte diferente (Unilever
+ * Desire) — sobra do design do ano anterior. O que de fato renderiza é a
+ * alternância dos dois itens abaixo, ambos 2027 e em Century Gothic.
+ * Registrado no PROJECT.md para confirmar com o designer.
+ */
+
+const ITENS = [
+  { html: '<strong class="font-bold">Programa de Estágio</strong> Unilever 2027', cor: 'text-sky-mid' },
+  { html: 'BORA <strong class="font-bold italic">ELEVAR</strong> O GAME?', cor: 'text-sky-dark' },
+];
+
+// repete o par o suficiente para cobrir telas largas sem buraco no loop
+const FAIXA = Array.from({ length: 8 }, (_, i) => ITENS[i % 2]);
+---
+
+<section class="overflow-hidden border-b border-black/10 bg-cloud py-12" aria-hidden="true">
+  <div class="marquee-texto flex h-[39px] w-max items-center gap-[88px]">
+    {
+      [0, 1].map(() =>
+        FAIXA.map((item) => (
+          <p class:list={['whitespace-nowrap text-[24px] leading-none', item.cor]} set:html={item.html} />
+        ))
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .marquee-texto {
+    animation: correr 40s linear infinite;
+  }
+
+  @keyframes correr {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* metade exata + metade do gap: a 2ª cópia assume o lugar da 1ª */
+      transform: translateX(calc(-50% - 44px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-texto {
+      animation: none;
+    }
+  }
+</style>

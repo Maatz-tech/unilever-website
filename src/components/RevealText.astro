@@ -1,0 +1,32 @@
+---
+/**
+ * Título que entra palavra a palavra com desfoque (o `TextReveal` da versão
+ * React). As palavras são quebradas em <span> no build — nada de manipular o
+ * DOM no cliente, que causaria reflow e piscada.
+ *
+ * O `revealWords()` de lib/motion.ts é quem anima.
+ */
+interface Props {
+  /** tag do título (h1, h2, h3…) */
+  as?: string;
+  text: string;
+  class?: string;
+  id?: string;
+}
+
+const { as: Tag = 'h2', text, class: className = '', id } = Astro.props;
+const palavras = text.split(' ').filter(Boolean);
+---
+
+<Tag id={id} class:list={['reveal-texto', className]} data-reveal-words>
+  {
+    palavras.map((palavra, i) => (
+      <>
+        <span data-palavra class="inline-block will-change-transform">
+          {palavra}
+        </span>
+        {i < palavras.length - 1 && ' '}
+      </>
+    ))
+  }
+</Tag>

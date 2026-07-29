@@ -1,0 +1,133 @@
+---
+import Button from '../Button.astro';
+import RevealText from '../RevealText.astro';
+import { INSCRICAO_URL } from '../../data/site';
+
+/**
+ * Pré-requisitos — fundo night, 3 cards de vidro + foto com o selo do programa.
+ *
+ * Figma: 4188:12133 (desktop, 1153.23 com os dois divisores de 56px)
+ *        4204:18959 (mobile, 1360.41)
+ *
+ * ATENÇÃO ao portar do projeto React anterior: lá o título estava em 32px.
+ * No Figma o desktop é **48px** (mobile 32px). Essa diferença é parte dos
+ * 480px que a página do legado tinha a menos que o design.
+ *
+ * O padding inferior do desktop é 72px, não 120: o frame do Figma tem altura
+ * fixa (1041.233) menor que o próprio conteúdo, então o `py-[120px]` que sai
+ * no código exportado só vale para o topo. Medido no render: o CTA termina em
+ * 969 e a seção em 1041.
+ */
+
+const REQUISITOS = [
+  {
+    icone: `${import.meta.env.BASE_URL}images/icons/req-graduacao.svg`,
+    titulo: 'Graduação em andamento',
+    texto:
+      'Cursando alguma Instituição de Ensino Superior – Bacharel, Licenciatura ou Tecnólogo, com previsão de conclusão entre 12/2027 e 12/2028.',
+  },
+  {
+    icone: `${import.meta.env.BASE_URL}images/icons/req-hibrido.svg`,
+    titulo: 'Formato híbrido e presencial',
+    texto: 'Ter disponibilidade para estagiar em formato híbrido e presencial.',
+  },
+  {
+    icone: `${import.meta.env.BASE_URL}images/icons/req-horas.svg`,
+    titulo: '30 horas semanais',
+    texto: 'Ter disponibilidade para estagiar 30 horas semanais, sem compensação de horas (6h diárias).',
+  },
+];
+---
+
+<img src={`${import.meta.env.BASE_URL}images/dividers/wave-end.svg`} alt="" aria-hidden="true" class="block h-[15.17px] w-full lg:h-14" />
+
+<section id="pre-requisitos" class="bg-night px-6 py-[72px] lg:px-28 lg:pb-[72px] lg:pt-[120px]">
+  <div class="container-lp flex flex-col items-center gap-12 px-0 lg:gap-14 lg:px-3">
+    <div class="flex w-full flex-col gap-8 lg:gap-14">
+      <!-- ── cabeçalho ────────────────────────────────────────────── -->
+      <header class="flex flex-col items-center gap-4 text-center" data-reveal>
+        <p class="text-[20px] leading-[1.2] text-aqua lg:text-[24px]">Pré Requisitos</p>
+        <RevealText
+          id="req-titulo"
+          text="O que você precisa pra entrar no game"
+          class="text-[32px] font-bold leading-[1.2] text-cloud lg:text-[48px]"
+        />
+      </header>
+
+      <!-- ── cards + foto ─────────────────────────────────────────── -->
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <ul id="req-cards" data-reveal-stagger class="flex flex-1 flex-col gap-4">
+          {
+            REQUISITOS.map((req) => (
+              <li class="carta-vidro flex flex-col justify-center gap-4 py-[24.556px] pl-[24.556px] pr-[16.556px] lg:h-[179.08px] lg:flex-row lg:items-center lg:gap-0 lg:py-[32.556px] lg:pl-[32.556px] lg:pr-[64.556px]">
+                <div class="flex w-full items-center gap-4 lg:items-start lg:gap-5">
+                  <span class="grid size-[51.997px] shrink-0 place-items-center rounded-2xl bg-aqua/12">
+                    <img src={req.icone} alt="" width="26" height="26" class="size-[25.998px]" />
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <h3 class="text-[20px] font-bold leading-[1.2] text-cloud lg:text-[24px] lg:leading-[1.5]">
+                      {req.titulo}
+                    </h3>
+                    <p class="hidden pt-[6px] text-[16px] leading-[1.5] text-pale-85 lg:block">{req.texto}</p>
+                  </div>
+                </div>
+                <p class="text-[16px] leading-[1.5] text-pale-85 lg:hidden">{req.texto}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <figure
+          class="relative h-[331.089px] w-full shrink-0 overflow-hidden rounded-[18.612px] lg:h-[569.24px] lg:flex-1 lg:rounded-[32px]"
+          data-reveal
+        >
+          <img
+            src={`${import.meta.env.BASE_URL}images/cards/requisitos.webp`}
+            alt="Estagiários da Unilever conversando em frente ao notebook"
+            loading="lazy"
+            class="absolute inset-0 size-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-[rgb(5_24_56/0.425)] to-transparent"></div>
+          <img
+            src={`${import.meta.env.BASE_URL}images/hero/lockup.webp`}
+            alt="Programa de Estágio Unilever 2027"
+            class="absolute bottom-[22.23px] right-[12.07px] h-[84.442px] w-[146.752px] lg:bottom-[38.22px] lg:right-[20.75px] lg:h-[145.18px] lg:w-[252.31px]"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </div>
+
+    <div data-reveal>
+      <Button href={INSCRICAO_URL} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={INSCRICAO_URL} variant="invert" size="lg" class="hidden lg:inline-flex">
+        Inscreva-se agora!
+      </Button>
+    </div>
+  </div>
+</section>
+
+<img src={`${import.meta.env.BASE_URL}images/dividers/wave-end-night.svg`} alt="" aria-hidden="true" class="block h-[15.17px] w-full lg:h-14" />
+
+<style>
+  .carta-vidro {
+    width: 100%;
+    border-radius: 32px;
+    background: var(--color-on-dark-05);
+    border: 0.556px solid var(--color-on-dark-10);
+    transition: border-color 300ms ease, background 300ms ease, transform 300ms ease;
+  }
+  .carta-vidro:hover {
+    transform: translateY(-4px);
+    border-color: rgb(35 231 255 / 0.4);
+    background: rgb(255 255 255 / 0.08);
+  }
+</style>
+
+<script>
+  import { revealOnScroll, revealStagger, revealWords } from '../../lib/motion';
+
+  revealWords('#req-titulo');
+  revealStagger('#req-cards');
+  revealOnScroll('#pre-requisitos [data-reveal]');
+</script>

@@ -1,0 +1,231 @@
+---
+import { INSTITUCIONAL } from '../../data/institucional';
+
+/**
+ * Carrossel institucional — seção azul com baralho de cards.
+ *
+ * Figma: 4188:12078 (desktop, 880px incluindo o divisor de 56px)
+ *        4204:18917 (mobile, 873px)
+ *
+ * Os dois cards de trás são DECORATIVOS: no Figma são instâncias duplicadas
+ * do mesmo componente, e só as bordas inferiores aparecem. Renderizar só as
+ * cascas evita duplicar o conteúdo e o custo de imagem.
+ *
+ * Geometria do baralho (topo/largura), medida no Figma:
+ *   desktop  frente 1192×520 · meio 1149 em y+27.12 · fundo 1081 em y+51.68
+ *   mobile   frente  342×657 · meio  325 em y+41.68 · fundo  309 em y+78.78
+ */
+
+const primeiro = INSTITUCIONAL[0];
+---
+
+<!-- divisor de entrada: recorte em zigue-zague para o azul -->
+<img
+  src={`${import.meta.env.BASE_URL}images/dividers/wave-start.svg`}
+  alt=""
+  aria-hidden="true"
+  class="block h-[15.17px] w-full lg:h-14"
+/>
+
+<section id="a-unilever" class="overflow-hidden bg-sky" aria-roledescription="carrossel" aria-label="A Unilever">
+  <div class="container-lp flex flex-col gap-8 px-6 pb-[72px] pt-[72px] lg:gap-16 lg:px-3 lg:pb-20 lg:pt-[120px]">
+    <!-- ── baralho ──────────────────────────────────────────────────── -->
+    <div class="relative h-[657px] lg:h-[520px]">
+      <!-- cascas decorativas, só as bordas de baixo aparecem -->
+      <div
+        data-inst-casca="2"
+        class="carta-fundo absolute left-[16.67px] top-[78.78px] h-[592.9px] w-[308.655px] rounded-[25.27px] lg:left-[3.31%] lg:top-[51.68px] lg:h-[484.64px] lg:w-[90.7%] lg:rounded-[26.096px]"
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        data-inst-casca="1"
+        class="carta-fundo absolute left-[8.55px] top-[41.68px] h-[624.15px] w-[324.9px] rounded-[26.6px] lg:left-[1.805%] lg:top-[27.12px] lg:h-[502px] lg:w-[96.39%] lg:rounded-[27.02px]"
+        aria-hidden="true"
+      >
+      </div>
+
+      <!-- card ativo -->
+      <article
+        data-inst-card
+        class="carta-fundo absolute left-0 top-0 flex h-[657px] w-full flex-col overflow-hidden rounded-[28px] lg:h-[520px] lg:flex-row"
+      >
+        <!-- imagem: em cima no mobile, à direita no desktop -->
+        <div class="h-[296px] shrink-0 overflow-hidden lg:order-2 lg:h-full lg:w-1/2">
+          <img
+            data-inst-foto
+            src={primeiro.foto}
+            alt={primeiro.alt}
+            width="596"
+            height="518"
+            loading="lazy"
+            class="size-full object-cover"
+          />
+        </div>
+
+        <div
+          class="flex flex-1 flex-col justify-center gap-4 px-7 py-8 lg:order-1 lg:w-1/2 lg:gap-5 lg:px-14 lg:py-13"
+        >
+          <h3
+            data-inst-titulo
+            class="text-[24px] font-bold leading-[1.2] text-sky lg:text-[32px] lg:leading-[1.4]"
+          >
+            {primeiro.titulo}
+          </h3>
+          <p data-inst-corpo class="body max-w-[449px] lg:text-[18px]" set:html={primeiro.corpo} />
+        </div>
+      </article>
+    </div>
+
+    <!-- ── controles ────────────────────────────────────────────────── -->
+    <div class="flex h-10 items-center justify-center gap-4 lg:justify-start">
+      <button type="button" data-inst-prev class="seta" aria-label="Slide anterior">
+        <img src={`${import.meta.env.BASE_URL}images/icons/arrow-prev.svg`} alt="" width="10" height="18" class="h-[18px] w-[10px]" />
+      </button>
+
+      <p class="flex items-center gap-2 text-[18px] text-cloud" aria-live="polite">
+        <span data-inst-atual>1</span><span aria-hidden="true">/</span><span>{INSTITUCIONAL.length}</span>
+      </p>
+
+      <button type="button" data-inst-next class="seta" aria-label="Próximo slide">
+        <img src={`${import.meta.env.BASE_URL}images/icons/arrow-next.svg`} alt="" width="10" height="18" class="h-[18px] w-[10px]" />
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .carta-fundo {
+    background: var(--color-cloud);
+    border: 1px solid #e8eaf1;
+    box-shadow: 0 24px 54px -30px rgb(19 32 51 / 0.35);
+  }
+
+  .seta {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: var(--color-cloud);
+    transition: opacity 200ms ease, transform 150ms ease;
+  }
+  .seta:hover {
+    transform: scale(1.06);
+  }
+  /* whileTap do legado */
+  .seta:active {
+    transform: scale(0.9);
+  }
+  /* no Figma a seta inativa fica em 20% */
+  .seta[data-inativa] {
+    opacity: 0.2;
+    cursor: default;
+  }
+  .seta[data-inativa]:hover {
+    transform: none;
+  }
+</style>
+
+<script>
+  import { INSTITUCIONAL } from '../../data/institucional';
+  import { prefersReducedMotion } from '../../lib/motion';
+
+  /**
+   * Valores da mola copiados do UnileverCarousel.jsx da versão React:
+   * spring stiffness 260, damping 30, mass 0.9 — e o arraste com
+   * dragElastic 0.22, que lá vinha de graça do Framer Motion e aqui é feito
+   * com Pointer Events.
+   *
+   * O baralho é empilhado na VERTICAL (as cascas aparecem embaixo), então a
+   * entrada do card vem de baixo pra cima — não lateralmente.
+   */
+  const MOLA = { type: 'spring', stiffness: 260, damping: 30, mass: 0.9 } as const;
+  const ELASTICO = 0.22;
+  const LIMIAR = 60; // px de arraste para trocar de slide
+
+  const card = document.querySelector<HTMLElement>('[data-inst-card]');
+  if (card) {
+    const foto = card.querySelector<HTMLImageElement>('[data-inst-foto]')!;
+    const titulo = card.querySelector<HTMLElement>('[data-inst-titulo]')!;
+    const corpo = card.querySelector<HTMLElement>('[data-inst-corpo]')!;
+    const contador = document.querySelector<HTMLElement>('[data-inst-atual]')!;
+    const prev = document.querySelector<HTMLButtonElement>('[data-inst-prev]')!;
+    const next = document.querySelector<HTMLButtonElement>('[data-inst-next]')!;
+    const cascas = Array.from(document.querySelectorAll<HTMLElement>('[data-inst-casca]'));
+
+    let atual = 0;
+
+    const pintar = (i: number) => {
+      const s = INSTITUCIONAL[i];
+      atual = i;
+      foto.src = s.foto;
+      foto.alt = s.alt;
+      titulo.textContent = s.titulo;
+      corpo.innerHTML = s.corpo;
+      contador.textContent = String(i + 1);
+      for (const [btn, inativo] of [
+        [prev, i === 0],
+        [next, i === INSTITUCIONAL.length - 1],
+      ] as const) {
+        btn.toggleAttribute('data-inativa', inativo);
+        btn.disabled = inativo;
+      }
+    };
+
+    const ir = async (passo: number) => {
+      const alvo = atual + passo;
+      if (alvo < 0 || alvo >= INSTITUCIONAL.length) return;
+      pintar(alvo);
+      if (prefersReducedMotion()) return;
+      const { animate } = await import('motion');
+      // o card entra com mola, vindo do lado de onde veio o gesto
+      animate(card, { opacity: [0, 1], y: [passo > 0 ? 48 : -48, 0] }, MOLA);
+      // as cascas dão um "assentamento" atrás — é o baralho reagindo
+      cascas.forEach((casca, n) => {
+        animate(casca, { y: [8 * (n + 1), 0] }, { ...MOLA, delay: 0.04 * (n + 1) });
+      });
+    };
+
+    prev.addEventListener('click', () => ir(-1));
+    next.addEventListener('click', () => ir(1));
+    pintar(0);
+
+    // ── arraste / swipe ────────────────────────────────────────────────
+    let inicioX = 0;
+    let arrastando = false;
+
+    card.style.touchAction = 'pan-y';
+
+    card.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      arrastando = true;
+      inicioX = e.clientX;
+      card.setPointerCapture(e.pointerId);
+    });
+
+    card.addEventListener('pointermove', (e) => {
+      if (!arrastando) return;
+      const dx = e.clientX - inicioX;
+      // resistência nas pontas, igual ao dragElastic
+      const noLimite = (dx > 0 && atual === 0) || (dx < 0 && atual === INSTITUCIONAL.length - 1);
+      card.style.transform = `translateX(${noLimite ? dx * ELASTICO : dx}px)`;
+    });
+
+    const soltar = async (e: PointerEvent) => {
+      if (!arrastando) return;
+      arrastando = false;
+      const dx = e.clientX - inicioX;
+      card.style.transform = '';
+      if (Math.abs(dx) > LIMIAR) {
+        ir(dx < 0 ? 1 : -1);
+      } else if (!prefersReducedMotion()) {
+        const { animate } = await import('motion');
+        animate(card, { x: [dx, 0] }, MOLA); // volta pro lugar
+      }
+    };
+
+    card.addEventListener('pointerup', soltar);
+    card.addEventListener('pointercancel', soltar);
+  }
+</script>

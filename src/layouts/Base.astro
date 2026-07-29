@@ -1,0 +1,105 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Caminho da imagem OG (1200×630). Relativo a /public. */
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Programa de Estágio Unilever 2027. Inscrições abertas — bora elevar o game?',
+  ogImage = '/og.jpg',
+} = Astro.props;
+
+// `site` vem do astro.config.mjs — TODO: trocar pelo domínio final
+const SITE_URL = Astro.site?.href ?? 'https://exemplo.com.br/';
+const canonical = new URL(Astro.url.pathname, SITE_URL).href;
+const ogImageUrl = new URL(ogImage, SITE_URL).href;
+
+/** Structured data: a página é uma vaga de estágio + a organização */
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}#organizacao`,
+      name: 'Unilever',
+      url: SITE_URL,
+      logo: new URL(`${import.meta.env.BASE_URL}images/brand/unilever.webp`, SITE_URL).href,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}#site`,
+      url: SITE_URL,
+      name: 'Programa de Estágio Unilever 2027',
+      inLanguage: 'pt-BR',
+      publisher: { '@id': `${SITE_URL}#organizacao` },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- marca que o JS está ativo ANTES do primeiro paint: o CSS usa isso para
+         esconder os blocos que vão ser revelados. Sem JS, nada é escondido. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+
+    <!-- LCP: pré-carrega só o fundo do hero do breakpoint atual -->
+    <link rel="preload" as="image" href={`${import.meta.env.BASE_URL}images/hero/bg-1.webp`} media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href={`${import.meta.env.BASE_URL}images/hero/bg-1-m.webp`} media="(max-width: 767px)" fetchpriority="high" />
+
+    <!-- Fonte: Jost substitui Century Gothic Paneuropean (ver global.css) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- CSS da fonte sem bloquear a renderização: carrega como `print` e
+         promove a `all` no onload. O <noscript> cobre quem está sem JS. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&display=swap"
+      />
+    </noscript>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="min-h-screen">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-sky focus:px-4 focus:py-2 focus:text-cloud"
+    >
+      Ir para o conteúdo
+    </a>
+    <slot />
+  </body>
+</html>

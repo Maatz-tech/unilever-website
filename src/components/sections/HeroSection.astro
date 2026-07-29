@@ -1,0 +1,431 @@
+---
+import HeroFrame from '../icons/HeroFrame.astro';
+import HeroShape from '../icons/HeroShape.astro';
+import { INSCRICAO_URL } from '../../data/site';
+
+/**
+ * Hero — 5 slides, desktop e mobile.
+ *
+ * Descoberta na coleta: os 5 slides do Figma têm EXATAMENTE o mesmo conteúdo
+ * em primeiro plano (shape azul, lockup, CTA, "BORA ELEVAR O GAME?" e badge).
+ * Só a foto muda. Então isto não é um carrossel de conteúdo: é um crossfade de
+ * camada de imagem. Nada de ilha React — vanilla `motion`, zero hidratação.
+ *
+ * ESCALA — os dois palcos usam medidas em `em` e um `font-size` que define
+ * quanto vale 1px do Figma:
+ *   desktop: min(1px, (100vw - 48px) / 1392)  → trava em 1:1 a partir de 1440px
+ *   mobile:  100vw / 390                      → sempre full-bleed
+ *
+ * PERFORMANCE: todas as imagens dos slides são `loading={i === 0 ? 'eager' : 'lazy'}`, inclusive o
+ * slide 0. Quem prioriza o fundo correto é o `<link rel="preload" media>` do
+ * Base.astro — assim o palco escondido por `display:none` não baixa nada.
+ *
+ * ARMADILHA: nunca colocar `font-size` e `padding` em `em` no MESMO elemento.
+ * `em` de padding resolve contra o font-size do próprio elemento, então o texto
+ * vai sempre num <span> interno. (Isso já quebrou o CTA uma vez.)
+ */
+
+/**
+ * Geometria dos slides, medida no Figma — desktop e mobile são independentes.
+ *
+ * Tentei derivar o mobile do desktop por um fator de escala e não funcionou:
+ * cada slide mobile tem seu próprio asset de fundo e recorte, e a pessoa fica
+ * sempre em top 253.68 (não escalonado). Os valores abaixo vêm dos nós mobile.
+ *
+ * `blur` só existe no desktop — no mobile o desfoque já vem embutido no asset.
+ */
+const SLIDES = [
+  {
+    d: { bg: 'bg-1', pes: 'pes-1', left: 430.48, top: 77.76, w: 584.261, h: 809.493, blur: false },
+    m: { bg: 'bg-1-m', pes: 'pes-1-m', h: 512.635 },
+    dim: 0,
+  },
+  {
+    d: { bg: 'bg-2', pes: 'pes-2', left: 355.65, top: 59.45, w: 639.184, h: 581, blur: true },
+    m: { bg: 'bg-2-m', pes: 'pes-2-m', h: 419 },
+    dim: 0,
+  },
+  {
+    d: { bg: 'bg-3', pes: 'pes-3', left: 429.03, top: 63.98, w: 584.261, h: 809.493, blur: true },
+    m: { bg: 'bg-3-m', pes: 'pes-3-m', h: 512.635 },
+    dim: 0.2,
+  },
+  {
+    d: { bg: 'bg-4', pes: 'pes-4', left: 335.78, top: 59.45, w: 584.261, h: 809.493, blur: true },
+    m: { bg: 'bg-4-m', pes: 'pes-4-m', h: 512.635 },
+    dim: 0,
+  },
+  {
+    d: { bg: 'bg-5', pes: 'pes-5', left: 429.03, top: 50.7, w: 584.261, h: 809.493, blur: true },
+    m: { bg: 'bg-5-m', pes: 'pes-5-m', h: 512.635 },
+    dim: 0,
+  },
+];
+
+/** no mobile a pessoa é sempre 370 de largura, centrada, em top 253.68 */
+const M_PES = { w: 370, top: 253.68 };
+---
+
+<section aria-label="Programa de Estágio Unilever 2027">
+  <!-- O título do hero é imagem (lockup + "bora elevar"), então o h1 real da
+       página vive aqui, visível só para leitores de tela e buscadores. -->
+  <h1 class="sr-only">
+    Programa de Estágio Unilever 2027 — Bora elevar o game? Inscrições abertas.
+  </h1>
+  <!-- ══════════════════ MOBILE (< 768px) ══════════════════ -->
+  <div class="hero-viewport-m md:hidden">
+    <div class="hero-stage-m" data-hero-stage>
+      {
+        SLIDES.map((slide, i) => (
+          <div class="absolute inset-0 overflow-hidden" data-hero-slide aria-hidden="true">
+            <div data-hero-bg class="absolute inset-0" style={`opacity:${i === 0 ? 1 : 0}`}>
+              <img
+                {...(i === 0 ? { src: `${import.meta.env.BASE_URL}images/hero/${slide.m.bg}.webp` } : { "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.m.bg}.webp` })}
+                alt=""
+                class="absolute inset-0 size-full object-cover"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              {slide.dim > 0 && <div class="absolute inset-0" style={`background:rgb(0 0 0 / ${slide.dim})`} />}
+            </div>
+          </div>
+        ))
+      }
+
+      <!-- Vinheta e moldura: no mobile os mesmos assets aparecem girados -90°.
+           O Figma exporta isso com container queries (100cqw/100cqh), mas as
+           unidades não resolvem certo aqui — a moldura saía 100px curta. Como o
+           palco tem tamanho conhecido (390x672em), as caixas vão em `em`:
+           o filho recebe largura/altura trocadas, é centrado e então girado. -->
+      <div class="pointer-events-none absolute left-0 top-0 h-[639.9em] w-[390em]">
+        <img
+          src={`${import.meta.env.BASE_URL}images/hero/vinheta.webp`}
+          alt=""
+          class="absolute left-1/2 top-1/2 h-[390em] w-[639.9em] -translate-x-1/2 -translate-y-1/2 -rotate-90"
+          loading="eager"
+        />
+      </div>
+      <div class="pointer-events-none absolute left-[13.61em] top-[12.5em] h-[614.9em] w-[362.78em]">
+        <HeroFrame
+          class="absolute left-1/2 top-1/2 h-[362.78em] w-[614.9em] -translate-x-1/2 -translate-y-1/2 -rotate-90 text-aqua"
+        />
+      </div>
+
+      <!-- conteúdo fixo -->
+      <div class="absolute left-1/2 top-0 h-[319em] w-[303em] -translate-x-1/2 overflow-hidden">
+        <HeroShape
+          class="absolute left-1/2 top-[-3.14em] h-[301.22em] w-[286.006em] -translate-x-1/2 text-sky"
+        />
+        <img
+          data-hero-in="0"
+          src={`${import.meta.env.BASE_URL}images/hero/lockup.webp`}
+          alt="Programa de Estágio Unilever 2027"
+          class="absolute left-1/2 top-[43.04em] h-[99.245em] w-[172.479em] -translate-x-1/2"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <img
+          data-hero-in="1"
+          src={`${import.meta.env.BASE_URL}images/hero/bora.webp`}
+          alt="Bora elevar o game?"
+          class="absolute top-[177.1em] h-[47.077em] w-[152.146em] -translate-x-1/2"
+          style="left:calc(50% - 10.17em)"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+
+      <!-- Pessoas — acima do conteúdo, como no Figma (o sujeito principal cobre
+           o shape e o lockup). No mobile ainda ficam ABAIXO do CTA e do badge. -->
+      {
+        SLIDES.map((slide, i) => (
+          <img
+            data-hero-pes
+            {...{ "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.m.pes}.webp` }}
+            alt=""
+            aria-hidden="true"
+            class="pointer-events-none absolute left-1/2 max-w-none -translate-x-1/2"
+            style={`top:${M_PES.top}em;width:${M_PES.w}em;height:${slide.m.h}em;opacity:${i === 0 ? 1 : 0}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        ))
+      }
+
+      <p
+        data-hero-badge
+        class="card absolute left-[43.5em] top-[448.5em] rounded-[10.933em] px-[17.492em] py-[8.746em] text-sky"
+      >
+        <span class="block text-[16em] leading-[1]">
+          Inscrições<br /><strong class="font-bold">abertas!</strong>
+        </span>
+      </p>
+
+      <a
+        href={INSCRICAO_URL}
+        data-hero-in="1"
+        class="btn btn-invert absolute left-1/2 top-[526em] -translate-x-1/2 rounded-[16em] px-[24em] pb-[14em] pt-[16em]"
+      >
+        <span class="text-[20em] leading-[1]">Inscreva-se agora!</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Faixa de marcas do mobile: o pill azul em largura cheia, montando 36px
+       sobre a borda inferior do hero (Figma 4204:18889 — 390×77.6, y 730, hero
+       termina em 766). Mesma proporção do pill do desktop (342×68), logo é o
+       mesmo asset — não existe card branco em volta. -->
+  <div class="relative z-20 -mt-9 md:hidden">
+    <img
+      src={`${import.meta.env.BASE_URL}images/hero/marca.webp`}
+      alt="Dove, OMO, Hellmann's e Rexona"
+      width="390"
+      height="78"
+      class="block h-[77.64px] w-full"
+      loading="eager"
+    />
+  </div>
+
+  <!-- ══════════════════ DESKTOP (>= 768px) ══════════════════ -->
+  <div class="hidden px-6 md:block">
+    <div class="hero-viewport">
+      <div class="hero-stage" data-hero-stage>
+        {
+          SLIDES.map((slide, i) => (
+            <div class="absolute inset-0 overflow-hidden" data-hero-slide aria-hidden="true">
+              <div data-hero-bg class="absolute inset-0" style={`opacity:${i === 0 ? 1 : 0}`}>
+                <img
+                  {...(i === 0 ? { src: `${import.meta.env.BASE_URL}images/hero/${slide.d.bg}.webp` } : { "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.d.bg}.webp` })}
+                  alt=""
+                  class:list={['absolute inset-0 size-full object-cover', slide.d.blur && 'scale-[1.03] blur-[2px]']}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : undefined}
+                />
+                {slide.dim > 0 && <div class="absolute inset-0" style={`background:rgb(0 0 0 / ${slide.dim})`} />}
+              </div>
+            </div>
+          ))
+        }
+
+        <img
+          src={`${import.meta.env.BASE_URL}images/hero/vinheta.webp`}
+          alt=""
+          class="pointer-events-none absolute inset-0 size-full object-cover"
+          loading="eager"
+        />
+        <div class="pointer-events-none absolute inset-0 bg-black/10"></div>
+
+        <HeroFrame
+          class="pointer-events-none absolute bottom-[3.49%] left-[1.95%] right-[1.96%] top-[3.64%] text-aqua"
+        />
+
+        <div class="absolute left-1/2 top-0 flex w-[1216em] -translate-x-1/2 items-center justify-between px-[12em]">
+          <div class="relative h-[538em] w-[512em] shrink-0 overflow-hidden">
+            <HeroShape class="absolute left-[0.19%] right-[4.73%] top-0 h-[512.712em] text-sky" />
+
+            <img
+              data-hero-in="0"
+              src={`${import.meta.env.BASE_URL}images/hero/lockup.webp`}
+              alt="Programa de Estágio Unilever 2027"
+              class="absolute left-[78.38em] top-[77.97em] h-[191.034em] w-[332em]"
+              loading="eager"
+              fetchpriority="high"
+            />
+
+            <a
+              href={INSCRICAO_URL}
+              data-hero-in="1"
+              class="btn btn-invert absolute left-[78.38em] top-[330.72em] rounded-[16em] px-[32em] pb-[22em] pt-[24em]"
+            >
+              <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>
+            </a>
+          </div>
+
+          <div class="relative h-[316em] w-[372em] shrink-0">
+            <img
+              data-hero-in="1"
+              src={`${import.meta.env.BASE_URL}images/hero/bora.webp`}
+              alt="Bora elevar o game?"
+              class="absolute left-[0.39em] top-[0.17em] w-[372em]"
+              style="aspect-ratio:1115/345"
+              loading="eager"
+              fetchpriority="high"
+            />
+
+            <p data-hero-badge class="card absolute left-[154em] top-[189.15em] rounded-[20em] px-[32em] py-[16em] text-sky">
+              <!-- leading 1: no Figma as duas linhas de 32px somam 64px exatos -->
+              <span class="block text-[32em] leading-[1]">
+                Inscrições<br /><strong class="font-bold">abertas!</strong>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Pessoas — acima do conteúdo, abaixo da faixa de marcas (ordem do Figma) -->
+        {
+          SLIDES.map((slide, i) => (
+            <img
+              data-hero-pes
+              {...{ "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.d.pes}.webp` }}
+              alt=""
+              aria-hidden="true"
+              class="pointer-events-none absolute max-w-none"
+              style={`left:${slide.d.left}em;top:${slide.d.top}em;width:${slide.d.w}em;height:${slide.d.h}em;opacity:${i === 0 ? 1 : 0}`}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          ))
+        }
+
+        <img
+          data-hero-in="2"
+          src={`${import.meta.env.BASE_URL}images/hero/marca.webp`}
+          alt="Dove, OMO, Hellmann's e Rexona"
+          class="absolute top-[512.71em] h-[68.081em] w-[342em] -translate-x-1/2"
+          style="left:calc(50% + 424.65em)"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* --- desktop: 1392x640, trava em 1:1 a partir de 1440px de viewport --- */
+  /* Trava em 1392 e CENTRA. Sem o margin-inline o palco encostava na
+     esquerda em telas ultrawide, com todo o vazio sobrando à direita. */
+  .hero-viewport {
+    position: relative;
+    width: min(100%, 1392px);
+    margin-inline: auto;
+    height: calc(640 * min(1px, (100vw - 48px) / 1392));
+    border-radius: calc(32 * min(1px, (100vw - 48px) / 1392));
+    overflow: hidden;
+  }
+
+  .hero-stage {
+    font-size: min(1px, calc((100vw - 48px) / 1392));
+    position: absolute;
+    inset: 0;
+    width: 1392em;
+    height: 640em;
+  }
+
+  /* --- mobile: 390x672, full-bleed, escala livre com a viewport --- */
+  .hero-viewport-m {
+    position: relative;
+    height: calc(672 * (100vw / 390));
+    overflow: hidden;
+  }
+
+  .hero-stage-m {
+    font-size: calc(100vw / 390);
+    position: absolute;
+    inset: 0;
+    width: 390em;
+    height: 672em;
+  }
+</style>
+
+<script>
+  import { prefersReducedMotion } from '../../lib/motion';
+
+  /**
+   * Animações do hero — valores copiados 1:1 do Hero.jsx da versão React.
+   * Como `motion` é o mesmo Framer Motion, só muda a sintaxe (imperativa em
+   * vez de declarativa); durações, easings e a mola são idênticos.
+   *
+   *   fundo    opacity 0→1, scale 1.05→1   1s    easeOut   (Ken Burns)
+   *   pessoa   opacity 0→1, y 60→0         0.7s  easeOut   (sai em y -24)
+   *   cascata  opacity 0→1, y 32→0         0.6s  delay 0.15·i
+   *   badge    opacity 0→1, scale 0.8→1    mola stiffness 300 damping 20
+   *
+   * ÚNICO desvio: no primeiro paint o fundo NÃO entra de opacity 0 — ele é o
+   * candidato a LCP e um fade de 1s atrasaria a métrica. O scale roda mesmo
+   * assim (não impede a pintura), então o Ken Burns inicial se mantém. Nas
+   * trocas seguintes o crossfade é completo, como no original.
+   */
+  const INTERVALO = 6000;
+  const EASE_OUT = [0, 0, 0.58, 1];
+
+  /** troca data-src por src depois do primeiro paint — tira ~300KB do caminho crítico */
+  const carregarDemais = () => {
+    for (const img of document.querySelectorAll<HTMLImageElement>('[data-hero-stage] img[data-src]')) {
+      img.src = img.dataset.src!;
+      img.removeAttribute('data-src');
+    }
+  };
+  if (document.readyState === 'complete') carregarDemais();
+  else window.addEventListener('load', carregarDemais, { once: true });
+
+  const palcos = Array.from(document.querySelectorAll<HTMLElement>('[data-hero-stage]'));
+  const slidesPorPalco = palcos.map((p) => Array.from(p.querySelectorAll<HTMLElement>('[data-hero-slide]')));
+  const total = slidesPorPalco[0]?.length ?? 0;
+
+  // A pessoa não mora mais dentro do slide (é pintada acima do conteúdo, como
+  // no Figma), então fundo e pessoa são casados por índice.
+  const pessoasPorPalco = palcos.map((p) => Array.from(p.querySelectorAll<HTMLElement>('[data-hero-pes]')));
+
+  const camadas = (palco: number, i: number) => ({
+    bg: slidesPorPalco[palco][i].querySelector<HTMLElement>('[data-hero-bg]')!,
+    pes: pessoasPorPalco[palco][i],
+  });
+
+  if (total > 0 && !prefersReducedMotion()) {
+    const { animate } = await import('motion');
+
+    // ── entrada: Ken Burns do primeiro fundo + cascata do primeiro plano ──
+    slidesPorPalco.forEach((_, palco) => {
+      animate(camadas(palco, 0).bg, { scale: [1.05, 1] }, { duration: 1, ease: EASE_OUT });
+    });
+
+    const entrando = Array.from(document.querySelectorAll<HTMLElement>('[data-hero-in]'));
+    for (const el of entrando) {
+      const ordem = Number(el.dataset.heroIn ?? 0);
+      animate(el, { opacity: [0, 1], y: [32, 0] }, { duration: 0.6, delay: 0.15 * ordem, ease: EASE_OUT });
+    }
+
+    for (const badge of document.querySelectorAll<HTMLElement>('[data-hero-badge]')) {
+      animate(
+        badge,
+        { opacity: [0, 1], scale: [0.8, 1] },
+        { delay: 0.5, type: 'spring', stiffness: 300, damping: 20 }
+      );
+    }
+
+    // ── troca de slides ────────────────────────────────────────────────
+    let atual = 0;
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const irPara = (proximo: number) => {
+      if (proximo === atual) return;
+      slidesPorPalco.forEach((_, palco) => {
+        const sai = camadas(palco, atual);
+        const entra = camadas(palco, proximo);
+
+        animate(sai.bg, { opacity: 0 }, { duration: 1, ease: EASE_OUT });
+        animate(sai.pes, { opacity: 0, y: -24 }, { duration: 0.7, ease: EASE_OUT });
+
+        animate(entra.bg, { opacity: [0, 1], scale: [1.05, 1] }, { duration: 1, ease: EASE_OUT });
+        animate(entra.pes, { opacity: [0, 1], y: [60, 0] }, { duration: 0.7, ease: EASE_OUT });
+      });
+      atual = proximo;
+    };
+
+    const parar = () => {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    };
+    const iniciar = () => {
+      parar();
+      if (total > 1) timer = setInterval(() => irPara((atual + 1) % total), INTERVALO);
+    };
+
+    iniciar();
+
+    for (const palco of palcos) {
+      palco.addEventListener('mouseenter', parar);
+      palco.addEventListener('mouseleave', iniciar);
+    }
+    document.addEventListener('visibilitychange', () => (document.hidden ? parar() : iniciar()));
+  }
+</script>

@@ -1,0 +1,241 @@
+---
+import { VIEWBOX, ufPaths, pinsMapa } from '../../data/brasilPaths.js';
+import { localidades } from '../../data/localidades.js';
+
+/**
+ * Localidades — mapa do Brasil interativo.
+ *
+ * Figma: 4188:12169 (desktop, 1043.31) · 4204:19006 (mobile, 1275.09)
+ *
+ * O Figma exporta o mapa como 27 SVGs separados posicionados por `inset`.
+ * Aqui usamos um único SVG com um <path> por estado (viewBox 613×639, mesma
+ * proporção do frame do Figma): é o que permite clicar, focar por teclado e
+ * pintar o estado selecionado sem gerenciar 27 imagens.
+ */
+
+const noPrograma = new Set(localidades.map((l) => l.uf));
+const inicial = localidades[0];
+---
+
+<section id="localidades" class="bg-cloud py-[72px] lg:py-[120px]">
+  <div class="container-lp flex flex-col gap-8 px-6 lg:px-3">
+    <header class="flex flex-col items-center gap-2 text-center" data-reveal>
+      <h2 class="text-[32px] font-bold leading-[1.2] text-sky lg:text-[48px]">Onde o game ganha vida</h2>
+      <p class="text-[16px] leading-[1.5] text-night-72 lg:text-[24px]">
+        Confira as localidades e as áreas de cada região
+      </p>
+    </header>
+
+    <div class="grid gap-8 pt-6 lg:grid-cols-[minmax(0,592.2fr)_minmax(0,535.8fr)] lg:gap-16 lg:pt-[52px]">
+      <!-- ── mapa ─────────────────────────────────────────────────────── -->
+      <div class="self-center" data-reveal>
+        <svg
+          viewBox={VIEWBOX}
+          class="h-auto w-full"
+          role="group"
+          aria-label="Mapa do Brasil com os estados do programa"
+        >
+          {
+            ufPaths.map((p: { uf: string; nome: string; d: string }) =>
+              noPrograma.has(p.uf) ? (
+                <path
+                  d={p.d}
+                  data-uf={p.uf}
+                  role="button"
+                  tabindex="0"
+                  aria-label={`${p.nome}, ver localidades`}
+                  aria-pressed={p.uf === inicial.uf ? 'true' : 'false'}
+                  class="uf-ativo"
+                  stroke="#fff"
+                  stroke-width="1"
+                />
+              ) : (
+                <path d={p.d} fill="var(--color-map-off)" stroke="#fff" stroke-width="1" />
+              )
+            )
+          }
+          {
+            pinsMapa.map((pin: { cx: number; cy: number }, i: number) => (
+              <g class="pointer-events-none">
+                <circle cx={pin.cx} cy={pin.cy} r="5" class="pino-pulso" style={`animation-delay:${i * 0.28}s`} />
+                <circle cx={pin.cx} cy={pin.cy} r="4.5" fill="#fff" stroke="var(--color-sky)" stroke-width="2" />
+              </g>
+            ))
+          }
+        </svg>
+      </div>
+
+      <!-- ── card ─────────────────────────────────────────────────────── -->
+      <div
+        class="self-center rounded-3xl border border-night/10 bg-cloud px-6 pb-[37px] pt-[41px] shadow-[8px_7px_6px_rgb(0_0_0/0.02),34px_28px_11px_rgb(0_0_0/0.02)] lg:px-[41px]"
+        data-reveal
+      >
+        <p class="rotulo">Estado selecionado</p>
+        <h3 data-uf-nome class="pt-[10px] text-[24px] font-bold leading-[1.5] text-night lg:text-[32px]">
+          {inicial.nome}
+        </h3>
+
+        <ul data-uf-cidades class="flex flex-wrap gap-x-6 gap-y-1 pt-3">
+          {
+            inicial.cidades.map((cidade: string) => (
+              <li class="flex items-center gap-1">
+                <img src={`${import.meta.env.BASE_URL}images/map/place.svg`} alt="" width="14" height="14" class="size-[13.993px]" />
+                <span class="text-[16px] leading-6 text-night-72">{cidade}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a href="#inscricao" class="mt-6 inline-flex items-center gap-2 text-[20px] font-bold text-sky">
+          Confira as áreas
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+            <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+
+        <div class="mt-6 h-px w-full bg-night/12"></div>
+
+        <p class="rotulo pt-6">Todos os estados do programa</p>
+
+        <ul class="flex flex-wrap gap-2 pt-4">
+          {
+            localidades.map((l: { uf: string; nome: string }) => (
+              <li>
+                <button
+                  type="button"
+                  data-chip={l.uf}
+                  aria-pressed={l.uf === inicial.uf ? 'true' : 'false'}
+                  class="chip"
+                >
+                  {l.nome}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .rotulo {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 1.9px;
+    text-transform: uppercase;
+    color: rgb(19 48 98 / 0.45);
+  }
+
+  /* estados do programa: clicáveis */
+  .uf-ativo {
+    /* estados do programa: sky-pale no Figma, não sky-mid */
+    fill: var(--color-sky-pale);
+    cursor: pointer;
+    transition: fill 300ms ease;
+    outline: none;
+  }
+  .uf-ativo[aria-pressed='true'] {
+    fill: var(--color-sky);
+  }
+  .uf-ativo:focus-visible {
+    stroke: var(--color-aqua);
+    stroke-width: 2;
+  }
+
+  /* pino pulsante — mesmo keyframe do projeto React */
+  .pino-pulso {
+    fill: var(--color-aqua);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulso 2.4s ease-out infinite;
+  }
+
+  @keyframes pulso {
+    0% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(3);
+    }
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 37.344px;
+    padding: 8.556px 16.556px;
+    border-radius: 999px;
+    border: 0.556px solid rgb(19 48 98 / 0.12);
+    background: var(--color-cloud);
+    color: var(--color-night);
+    font-size: 14px;
+    line-height: 20.25px;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+  .chip:hover {
+    border-color: var(--color-sky);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--color-sky);
+    border-color: var(--color-sky);
+    color: var(--color-cloud);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pino-pulso {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+</style>
+
+<script>
+  import { localidades } from '../../data/localidades.js';
+  import { revealOnScroll } from '../../lib/motion';
+
+  revealOnScroll('#localidades [data-reveal]');
+
+  const secao = document.querySelector('#localidades');
+  if (secao) {
+    const nome = secao.querySelector<HTMLElement>('[data-uf-nome]')!;
+    const cidades = secao.querySelector<HTMLElement>('[data-uf-cidades]')!;
+    const paths = Array.from(secao.querySelectorAll<SVGPathElement>('[data-uf]'));
+    const chips = Array.from(secao.querySelectorAll<HTMLButtonElement>('[data-chip]'));
+
+    const selecionar = (uf: string) => {
+      const l = localidades.find((x: { uf: string }) => x.uf === uf);
+      if (!l) return;
+
+      nome.textContent = l.nome;
+      cidades.innerHTML = l.cidades
+        .map(
+          (c: string) =>
+            `<li class="flex items-center gap-1"><img src="${import.meta.env.BASE_URL}images/map/place.svg" alt="" width="14" height="14" class="size-[13.993px]" /><span class="text-[16px] leading-6 text-night-72">${c}</span></li>`
+        )
+        .join('');
+
+      for (const p of paths) p.setAttribute('aria-pressed', String(p.dataset.uf === uf));
+      for (const c of chips) c.setAttribute('aria-pressed', String(c.dataset.chip === uf));
+    };
+
+    for (const p of paths) {
+      // o hover já seleciona de fato (atualiza o card e os chips), não só pinta
+      p.addEventListener('mouseenter', () => selecionar(p.dataset.uf!));
+      p.addEventListener('click', () => selecionar(p.dataset.uf!));
+      p.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selecionar(p.dataset.uf!);
+        }
+      });
+    }
+    for (const c of chips) c.addEventListener('click', () => selecionar(c.dataset.chip!));
+  }
+</script>

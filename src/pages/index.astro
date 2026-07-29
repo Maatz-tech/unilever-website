@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import HeroSection from '../components/sections/HeroSection.astro';
+import StoriesSection from '../components/sections/StoriesSection.astro';
+import AboutSection from '../components/sections/AboutSection.astro';
+import InstitucionalSection from '../components/sections/InstitucionalSection.astro';
+import RequisitosSection from '../components/sections/RequisitosSection.astro';
+import LocalidadesSection from '../components/sections/LocalidadesSection.astro';
+import BeneficiosSection from '../components/sections/BeneficiosSection.astro';
+import TimelineSection from '../components/sections/TimelineSection.astro';
+import MarqueeSection from '../components/sections/MarqueeSection.astro';
+---
+
+<Base
+  title="Programa de Estágio Unilever 2027 | Bora elevar o game?"
+  description="Inscrições abertas para o Programa de Estágio Unilever 2027. Projetos reais, mentoria e oportunidades internacionais. Bora elevar o game?"
+>
+  <Header />
+
+  <main id="main">
+    <HeroSection />
+    <StoriesSection />
+    <AboutSection />
+    <InstitucionalSection />
+    <RequisitosSection />
+    <LocalidadesSection />
+    <BeneficiosSection />
+    <TimelineSection />
+    <MarqueeSection />
+    <!-- próximas seções entram aqui, uma por vez (Fase 4 do playbook) -->
+  </main>
+
+  <Footer />
+</Base>

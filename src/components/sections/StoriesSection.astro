@@ -1,0 +1,415 @@
+---
+import { STORIES } from '../../data/stories';
+
+/**
+ * Stories — faixa infinita de avatares que abre um depoimento em tela cheia.
+ *
+ * Medidas do Figma (nó 4188:11971 desktop / 4204:19438 mobile):
+ *   anel      110px desktop · 82px mobile   (borda 3.366px sky-mid, POR FORA)
+ *   gap       32px desktop  · 16px mobile
+ *   foto      anel − 2×6.18 de padding, borda interna 1.854px preto/10%
+ *   nome      14px desktop  · 10.5px mobile, cor #0c1014
+ *   seção     py-56 desktop · py-24 mobile  → 261.9px e 160.7px de altura
+ *
+ * A borda do anel fica por FORA da caixa de layout (por isso `ring`, não
+ * `border`): é o que faz a altura fechar em 261.876px, igual ao Figma.
+ *
+ * O marquee é CSS puro — não gasta JS e não trava a rolagem. O visualizador
+ * usa <dialog> nativo, que já entrega foco preso, ESC e backdrop de graça;
+ * o Framer Motion entra só nas transições.
+ */
+
+---
+
+<section class="overflow-hidden bg-cloud py-6 lg:py-14" aria-label="Depoimentos de estagiários">
+  <div class="marquee-mask">
+    <div class="marquee flex w-max">
+      {
+        [0, 1].map((copia) => (
+          <ul class="flex shrink-0 gap-4 pr-4 lg:gap-8 lg:pr-8" aria-hidden={copia === 1 ? 'true' : undefined}>
+            {STORIES.map((story, i) => (
+              <li>
+                <button
+                  type="button"
+                  class="story-btn group flex w-[78px] flex-col items-center gap-[6.292px] py-[6.292px] lg:w-[110px]"
+                  data-story={i}
+                  tabindex={copia === 1 ? -1 : undefined}
+                >
+                  <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
+                    <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
+                      <img
+                        src={story.foto.replace('.webp', '-mini.webp')}
+                        alt=""
+                        width="91"
+                        height="91"
+                        loading="lazy"
+                        class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
+                      />
+                    </span>
+                  </span>
+                  <span class="w-full truncate px-[4.8px] text-center text-[10.5px] leading-[1.5] text-ink lg:text-[14px]">
+                    {story.nome}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ── visualizador ─────────────────────────────────────────────────────── -->
+<dialog id="story-dialog" class="story-dialog" aria-label="Depoimento">
+  <div class="relative flex h-full w-full items-center justify-center">
+    <button type="button" data-story-close class="story-nav absolute right-4 top-4 lg:right-8 lg:top-8" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <button type="button" data-story-prev class="story-nav absolute left-4 lg:left-8" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <button type="button" data-story-next class="story-nav absolute right-4 lg:right-8" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+        <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <figure data-story-card class="story-card">
+      <img data-story-foto src="" alt="" class="absolute inset-0 size-full object-cover" />
+
+      <!-- Figma: dois gradientes independentes — 128px preto/70% no topo e um
+           mais alto, azul-noite, subindo da base (não um único overlay). -->
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-[19.9%] bg-gradient-to-b from-black/70 to-transparent"></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[rgb(5_24_56/0.8)] via-[rgb(5_24_56/0.45)] via-50% to-transparent"
+      >
+      </div>
+
+      <!-- barras de progresso: um segmento por depoimento (h 3, gap 4) -->
+      <ol
+        data-story-progresso
+        class="absolute inset-x-[3.3%] top-[1.9%] flex gap-1"
+        aria-hidden="true"
+      >
+        {
+          STORIES.map(() => (
+            <li class="h-[3px] flex-1 overflow-hidden rounded-full bg-cloud/30">
+              <span data-story-barra class="block h-full w-0 bg-cloud"></span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <header class="absolute left-[4.4%] top-[5%] flex items-center gap-3">
+        <span class="anel block shrink-0 rounded-full p-[5px]">
+          <img
+            data-story-avatar
+            src=""
+            alt=""
+            class="block size-10 rounded-full object-cover"
+          />
+        </span>
+        <p data-story-nome class="text-[14px] font-bold leading-[21px] text-cloud"></p>
+      </header>
+
+      <figcaption
+        data-story-legenda
+        class="absolute left-1/2 top-[60.5%] flex w-[86.7%] -translate-x-1/2 flex-col gap-3"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" class="size-7 text-aqua" aria-hidden="true">
+          <path d="M9.5 5C6.46 5 4 7.46 4 10.5S6.46 16 9.5 16h.6c-.4 1.6-1.6 2.6-3.1 3l.7 2c3-.8 5.3-3.4 5.3-7.5V10.5C13 7.46 12.54 5 9.5 5zm10 0C16.46 5 14 7.46 14 10.5S16.46 16 19.5 16h.6c-.4 1.6-1.6 2.6-3.1 3l.7 2c3-.8 5.3-3.4 5.3-7.5V10.5C23 7.46 22.54 5 19.5 5z"/>
+        </svg>
+        <p data-story-texto class="text-[14px] leading-[1.4] text-cloud"></p>
+      </figcaption>
+
+      <!-- zonas de toque: terços laterais navegam (padrão de stories) -->
+      <button type="button" data-story-prev-zona class="absolute inset-y-0 left-0 w-1/3 lg:hidden" aria-label="Story anterior"></button>
+      <button type="button" data-story-next-zona class="absolute inset-y-0 right-0 w-1/3 lg:hidden" aria-label="Próximo story"></button>
+    </figure>
+  </div>
+</dialog>
+
+<style>
+  /* --- marquee -------------------------------------------------------
+     Sem máscara de fade nas laterais: isso vinha do projeto React, o Figma
+     mostra a faixa cortada reta pela borda da seção. */
+  .marquee {
+    animation: marquee 60s linear infinite;
+  }
+
+  /* Pausa em hover, foco de teclado e toque. Sem a pausa no toque, o alvo
+     foge do dedo no celular — onde não existe hover pra segurar a faixa. */
+  .marquee-mask:hover .marquee,
+  .marquee:focus-within,
+  .marquee-mask[data-pausado] .marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* -50% exato: cada grupo carrega o próprio gap final (pr-4/pr-8), então
+         a segunda cópia assume a posição da primeira sem salto */
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      animation: none;
+    }
+    .marquee-mask {
+      overflow-x: auto;
+    }
+  }
+
+  /* Anel gradiente (faixa e avatar do card). O código exportado do Figma diz
+     `border-solid #47a3ff`, mas o render mostra gradiente aqua → azul — o
+     mesmo do avatar dentro do card. Seguimos o render. */
+  .anel {
+    background: linear-gradient(140deg, var(--color-aqua), var(--color-sky));
+    transition: filter 200ms ease;
+  }
+  .group:hover .anel {
+    filter: brightness(1.15) saturate(1.2);
+  }
+
+  .story-btn {
+    cursor: pointer;
+    transition: transform 200ms ease;
+  }
+  .story-btn:hover {
+    transform: translateY(-3px) scale(1.04);
+  }
+  .story-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* --- dialog -------------------------------------------------------- */
+  .story-dialog {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  /* Figma 4193:15160 — backdrop-blur 11.1px sobre rgba(5,16,40,0.88).
+     Era só cor sólida antes; o blur é o que dá o acabamento. */
+  .story-dialog::backdrop {
+    background: rgb(5 16 40 / 0.88);
+    backdrop-filter: blur(11.1px);
+    -webkit-backdrop-filter: blur(11.1px);
+  }
+
+  /* Figma: 361.836 × 643.273 (9/16), max-height 780, raio 28 */
+  .story-card {
+    position: relative;
+    height: min(84dvh, 780px);
+    max-width: 92vw;
+    aspect-ratio: 9 / 16;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .story-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.1);
+    color: var(--color-cloud);
+    transition: background 180ms ease;
+  }
+  .story-nav:hover {
+    background: rgb(255 255 255 / 0.24);
+  }
+  /* nas pontas o controle não some, só deixa de agir */
+  .story-nav[data-inativo] {
+    opacity: 0.25;
+    cursor: default;
+  }
+  .story-nav[data-inativo]:hover {
+    background: rgb(255 255 255 / 0.12);
+  }
+</style>
+
+<script>
+  import { STORIES } from '../../data/stories';
+  import { prefersReducedMotion } from '../../lib/motion';
+
+  /**
+   * Valores copiados do StoryViewer.jsx da versão React:
+   *   card    scale 0.92→1, y 24→0, opacity 0→1   mola stiffness 300 damping 28
+   *   foto    scale 1.1→1, opacity 0.6→1          0.5s easeOut
+   *   texto   y 24→0, blur 8px→0                  delay 0.25, 0.5s
+   *   barra   width 0→100%                        6s linear, ao fim avança
+   */
+  const DURACAO = 6;
+  const MOLA = { type: 'spring', stiffness: 300, damping: 28 } as const;
+  const EASE_OUT = [0, 0, 0.58, 1];
+
+  const dialog = document.querySelector<HTMLDialogElement>('#story-dialog');
+  const card = document.querySelector<HTMLElement>('[data-story-card]');
+
+  if (dialog && card) {
+    const el = {
+      foto: dialog.querySelector<HTMLImageElement>('[data-story-foto]')!,
+      avatar: dialog.querySelector<HTMLImageElement>('[data-story-avatar]')!,
+      nome: dialog.querySelector<HTMLElement>('[data-story-nome]')!,
+      texto: dialog.querySelector<HTMLElement>('[data-story-texto]')!,
+      legenda: dialog.querySelector<HTMLElement>('[data-story-legenda]')!,
+      barras: Array.from(dialog.querySelectorAll<HTMLElement>('[data-story-barra]')),
+    };
+
+    const prevBtn = dialog.querySelector<HTMLElement>('[data-story-prev]');
+    const nextBtn = dialog.querySelector<HTMLElement>('[data-story-next]');
+
+    let atual = 0;
+    let cronometro: ReturnType<typeof setTimeout> | undefined;
+
+    /**
+     * A barra de progresso NÃO usa o Motion. O Motion anima via Web Animations
+     * API, e o valor animado tem prioridade sobre o `style` inline — ao pular
+     * de story a barra congelava no ponto do pulo, porque o repintar não
+     * conseguia sobrescrever. Com `transition` de CSS o controle é todo nosso:
+     * `transition: none` + nova largura reseta na hora.
+     */
+    const pararProgresso = () => {
+      clearTimeout(cronometro);
+      cronometro = undefined;
+    };
+
+    /** Zera ou preenche uma barra instantaneamente, sem transição. */
+    const definirBarra = (b: HTMLElement, largura: string) => {
+      b.style.transition = 'none';
+      b.style.width = largura;
+    };
+
+    const pintar = (i: number) => {
+      const s = STORIES[i];
+      atual = i;
+      el.foto.src = s.foto;
+      el.foto.alt = `${s.nome}, ${s.area}`;
+      el.avatar.src = s.foto;
+      el.avatar.alt = '';
+      el.nome.textContent = s.nome;
+      el.texto.textContent = s.depoimento;
+      // já vistos = cheios · atual e seguintes = vazios (o atual é preenchido
+      // pelo cronômetro). Sem isto, pular deixava a barra travada no meio.
+      el.barras.forEach((b, j) => definirBarra(b, j < i ? '100%' : '0%'));
+      // nas pontas o controle fica inerte: não passa do último nem volta do primeiro
+      prevBtn?.toggleAttribute('data-inativo', i === 0);
+      nextBtn?.toggleAttribute('data-inativo', i === STORIES.length - 1);
+      dialog.setAttribute('aria-label', `Depoimento de ${s.nome} — ${i + 1} de ${STORIES.length}`);
+    };
+
+    /** Entrada do card + auto-avanço pela barra de progresso. */
+    const animarEntrada = async (primeiraAbertura: boolean) => {
+      pararProgresso();
+
+      if (prefersReducedMotion()) {
+        // sem movimento a barra não corre sozinha — o usuário navega
+        definirBarra(el.barras[atual], '100%');
+        return;
+      }
+      const { animate } = await import('motion');
+
+      if (primeiraAbertura) {
+        animate(card, { opacity: [0, 1], scale: [0.92, 1], y: [24, 0] }, MOLA);
+      }
+      animate(el.foto, { opacity: [0.6, 1], scale: [1.1, 1] }, { duration: 0.5, ease: EASE_OUT });
+      animate(
+        el.legenda,
+        { opacity: [0, 1], y: [24, 0], filter: ['blur(8px)', 'blur(0px)'] },
+        { delay: 0.25, duration: 0.5, ease: EASE_OUT }
+      );
+
+      // a barra do story atual corre em 6s; ao terminar, avança
+      const barra = el.barras[atual];
+      const meu = atual;
+      void barra.offsetWidth; // força o reflow para a transição valer a partir do 0
+      barra.style.transition = `width ${DURACAO}s linear`;
+      barra.style.width = '100%';
+
+      cronometro = setTimeout(() => {
+        if (meu !== atual) return;
+        // só o fim POR TEMPO reinicia a série; no botão o último trava
+        abrirIndice(meu === STORIES.length - 1 ? 0 : meu + 1);
+      }, DURACAO * 1000);
+    };
+
+    const abrirIndice = (i: number) => {
+      // parar ANTES de pintar: se parar depois, o Motion escreve de volta a
+      // largura em que a barra estava e ela congela no ponto do pulo
+      pararProgresso();
+      pintar(i);
+      animarEntrada(false);
+    };
+
+    /** Navegação manual: trava nas pontas, não circula. */
+    const navegar = (passo: number) => {
+      const alvo = atual + passo;
+      if (alvo < 0 || alvo >= STORIES.length) return;
+      abrirIndice(alvo);
+    };
+
+    const abrir = (i: number) => {
+      pararProgresso();
+      pintar(i);
+      dialog.showModal();
+      animarEntrada(true);
+    };
+
+    for (const btn of document.querySelectorAll<HTMLElement>('[data-story]')) {
+      btn.addEventListener('click', () => abrir(Number(btn.dataset.story)));
+    }
+
+    dialog.querySelector('[data-story-close]')?.addEventListener('click', () => dialog.close());
+    for (const sel of ['[data-story-prev]', '[data-story-prev-zona]']) {
+      dialog.querySelector(sel)?.addEventListener('click', () => navegar(-1));
+    }
+    for (const sel of ['[data-story-next]', '[data-story-next-zona]']) {
+      dialog.querySelector(sel)?.addEventListener('click', () => navegar(1));
+    }
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    // para o cronômetro ao fechar, senão avança com o modal fechado
+    dialog.addEventListener('close', pararProgresso);
+
+    document.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === 'ArrowRight') navegar(1);
+      if (e.key === 'ArrowLeft') navegar(-1);
+    });
+
+    // no toque não há hover: segura a faixa enquanto o dedo está nela
+    const faixa = document.querySelector<HTMLElement>('.marquee-mask');
+    if (faixa) {
+      const segurar = () => faixa.setAttribute('data-pausado', '');
+      const soltar = () => faixa.removeAttribute('data-pausado');
+      faixa.addEventListener('touchstart', segurar, { passive: true });
+      faixa.addEventListener('touchend', soltar, { passive: true });
+      faixa.addEventListener('touchcancel', soltar, { passive: true });
+      dialog.addEventListener('close', soltar);
+    }
+  }
+</script>

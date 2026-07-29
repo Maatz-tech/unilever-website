@@ -1,0 +1,129 @@
+---
+import Button from '../Button.astro';
+import { PILARES, BENEFICIOS } from '../../data/beneficios';
+import { INSCRICAO_URL } from '../../data/site';
+
+/**
+ * Benefícios — fundo night, dois blocos.
+ *
+ * Figma: 4188:12263 (desktop, 1563) · 4204:19127 (mobile, 2239.28)
+ *
+ * Bloco 1: foto + 4 pilares separados por linha.
+ * Bloco 2: título + 10 pills + nota + CTA.
+ *
+ * Detalhe fiel ao design: a linha divisória entre os pilares é **sky-mid** no
+ * desktop e **aqua** no mobile. Não é engano meu — os dois nós divergem.
+ *
+ * A copy dos 4 pilares veio do Figma; no projeto React estava com Lorem ipsum.
+ *
+ * A foto usa `self-stretch` e NÃO `h-full`: o pai flex não tem altura definida,
+ * então `height:100%` colapsa para zero e a imagem some.
+ */
+---
+
+<section id="beneficios" class="bg-night py-[72px] lg:py-[120px]">
+  <div class="container-lp flex flex-col gap-16 px-6 lg:gap-[120px] lg:px-3">
+    <!-- ── bloco 1: foto + pilares ──────────────────────────────────── -->
+    <div class="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-16">
+      <h2
+        class="text-center text-[32px] font-bold leading-[1.2] text-cloud lg:hidden"
+        data-reveal
+      >
+        <span class="text-aqua">A Unilever</span><br />joga junto com você
+      </h2>
+
+      <figure
+        class="relative h-[406.277px] w-full max-w-[400px] shrink-0 overflow-hidden rounded-[19.404px] bg-[#f5f7f9] lg:h-auto lg:max-w-[660px] lg:flex-1 lg:self-stretch lg:rounded-[32px]"
+        data-reveal
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}images/cards/beneficios-foto.webp`}
+          alt="Estagiárias da Unilever colaborando"
+          loading="lazy"
+          class="absolute inset-0 size-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent from-[60.054%] to-black/80"></div>
+        <img
+          src={`${import.meta.env.BASE_URL}images/hero/bora.webp`}
+          alt="Bora elevar o game?"
+          class="absolute bottom-[19.41px] right-[19.41px] h-[46.187px] w-[149.271px] lg:bottom-8 lg:right-8 lg:h-[76.168px] lg:w-[246.167px]"
+          loading="lazy"
+        />
+      </figure>
+
+      <div class="flex w-full flex-col justify-center gap-6 lg:w-[623px] lg:min-w-0 lg:shrink lg:gap-[54px]">
+        <h2 class="hidden text-[48px] font-bold leading-[1.2] text-cloud lg:block" data-reveal>
+          <span class="text-aqua">A Unilever</span> joga<br />junto com você
+        </h2>
+
+        <ul id="ben-pilares" data-reveal-stagger class="flex flex-col gap-6">
+          {
+            PILARES.map((pilar, i) => (
+              <li>
+                {/* grid resolve os dois layouts sem repetir o título:
+                    mobile  → [ícone | título] e o texto abaixo, ocupando as 2 colunas
+                    desktop → [ícone | título] e o texto abaixo, só na 2ª coluna */}
+                <div class="grid grid-cols-[40px_1fr] items-center gap-x-2 gap-y-3 lg:items-start lg:gap-x-3 lg:gap-y-1">
+                  <img src={pilar.icone} alt="" width="40" height="40" loading="lazy" class="size-10" />
+                  <h3 class="text-[20px] font-bold leading-[1.2] text-cloud lg:text-[24px] lg:leading-[1.5]">
+                    {pilar.titulo}
+                  </h3>
+                  <p class="col-span-2 text-[14px] leading-[1.5] text-pale-70 lg:col-span-1 lg:col-start-2 lg:text-[16px]">
+                    {pilar.texto}
+                  </p>
+                </div>
+                {i < PILARES.length - 1 && (
+                  <div class="mt-6 h-px w-full bg-aqua/50 lg:bg-sky-mid/50" aria-hidden="true" />
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── bloco 2: pills ──────────────────────────────────────────── -->
+    <div class="flex flex-col items-center gap-8 lg:gap-10">
+      <h2 class="text-center text-[24px] leading-[1.4] text-cloud lg:text-[32px]" data-reveal>
+        Quais serão os <strong class="font-bold text-aqua">benefícios</strong><br class="lg:hidden" /> para os
+        contratados?
+      </h2>
+
+      <ul
+        id="ben-pills"
+        data-reveal-stagger
+        class="flex w-full flex-col items-center gap-4 lg:flex-row lg:flex-wrap lg:justify-center"
+      >
+        {
+          BENEFICIOS.map((b) => (
+            <li class="flex items-center gap-2 rounded-full bg-cloud/8 py-3 pl-4 pr-6 lg:gap-3 lg:pb-3 lg:pl-5 lg:pr-8 lg:pt-[14px]">
+              <img src={b.icone} alt="" width="32" height="32" loading="lazy" class="size-6 shrink-0 lg:size-8" />
+              <span class="text-[16px] leading-[1.4] text-cloud lg:whitespace-nowrap lg:text-[20px]">
+                {b.texto}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="text-center text-[14px] leading-[1.4] text-cloud lg:text-[16px]" data-reveal>
+        *de acordo com modelo de trabalho
+      </p>
+
+      <div data-reveal>
+        <Button href={INSCRICAO_URL} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
+        <Button href={INSCRICAO_URL} variant="invert" size="lg" class="hidden lg:inline-flex">
+          Inscreva-se agora!
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { revealOnScroll, revealStagger } from '../../lib/motion';
+
+  revealOnScroll('#beneficios [data-reveal]');
+  revealStagger('#ben-pilares');
+  revealStagger('#ben-pills', 0.05);
+</script>

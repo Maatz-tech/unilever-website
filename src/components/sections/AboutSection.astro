@@ -1,0 +1,206 @@
+---
+import Button from '../Button.astro';
+import RevealText from '../RevealText.astro';
+import { INSCRICAO_URL, VIDEO_URL } from '../../data/site';
+
+/**
+ * Sobre o programa — headline, dois parágrafos e a galeria de 4 fotos.
+ *
+ * Figma: 4188:12051 (desktop, 878px) · 4204:19413 (mobile, 1292px)
+ *
+ * A galeria não é um grid de colunas iguais: no desktop são 4 figuras com
+ * larguras proporcionais (210 / 441 / 283 / 210), por isso `flex` com
+ * `flex-grow` nessas razões. No mobile vira o vídeo em cima e 2 fotos abaixo
+ * — a 4ª foto some.
+ */
+
+const FOTOS = {
+  notebook: `${import.meta.env.BASE_URL}images/gallery/estagiaria-notebook.webp`,
+  video: `${import.meta.env.BASE_URL}images/gallery/time-video.webp`,
+  reuniao: `${import.meta.env.BASE_URL}images/gallery/reuniao-time.webp`,
+  grupo: `${import.meta.env.BASE_URL}images/gallery/grupo-jovens.webp`,
+};
+---
+
+<section id="o-programa" class="bg-cloud pb-[72px] pt-8 lg:pb-[120px] lg:pt-0">
+  <div class="container-lp flex flex-col items-center gap-8 px-6 lg:items-stretch lg:gap-0 lg:px-3 lg:pt-10">
+    <!-- ── texto ────────────────────────────────────────────────────── -->
+    <div class="flex w-full flex-col gap-6">
+      <RevealText
+        id="sobre-titulo"
+        text="O Programa de Estágio Unilever 2027 é para quem quer começar a carreira jogando em alto nível."
+        class="max-w-[840px] text-[24px] font-bold leading-[1.2] text-sky lg:text-[32px] lg:leading-[1.4]"
+      />
+
+      <div class="flex flex-col gap-3 lg:w-full lg:flex-row lg:justify-between lg:gap-6" data-reveal>
+        <p class="body lg:max-w-[548px] lg:flex-1">
+          Aqui, você aprende na prática, participa de projetos reais e desenvolve habilidades que
+          ajudam a transformar ideias em impacto. Da fábrica ao escritório, do ponto de venda às
+          marcas que fazem parte da rotina de milhões de pessoas, existe espaço para quem quer
+          crescer com preparo, colaboração e atitude.
+        </p>
+        <p class="body lg:max-w-[548px] lg:flex-1">
+          Fazer parte deste programa é entrar em um time gigante, que joga junto, aprende junto e
+          constrói soluções para o Brasil e para o mundo. Se você quer começar sua trajetória em uma
+          empresa onde o game acontece de ponta a ponta, essa pode ser a sua próxima grande jogada.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── galeria ──────────────────────────────────────────────────── -->
+    <div class="flex w-full flex-col gap-4 lg:h-[374px] lg:flex-row lg:items-end lg:pt-11" data-reveal>
+      <!-- vídeo: primeiro no mobile, segundo no desktop -->
+      <figure
+        class="figura order-1 h-[330px] w-full lg:order-2 lg:h-[330px] lg:w-0 lg:flex-grow-[440.813]"
+      >
+        <button type="button" data-video-abrir class="group/v relative block size-full cursor-pointer text-left">
+          <img
+            src={FOTOS.video}
+            alt="Time de estagiários trabalhando junto em frente ao computador"
+            loading="lazy"
+            class="foto"
+          />
+          <span
+            class="absolute inset-0 bg-gradient-to-t from-[rgb(5_24_56/0.7)] via-[rgb(5_24_56/0.22)] via-40% to-[rgb(5_24_56/0)] to-66%"
+          ></span>
+          <span
+            class="absolute bottom-[22px] left-[22px] flex items-center gap-3 rounded-full border border-on-dark-32 bg-on-dark-15 py-[10px] pl-[10px] pr-[23px] shadow-[0_10px_34px_0_rgb(4_6_26/0.3)] backdrop-blur-sm transition-transform duration-300 group-hover/v:scale-105"
+          >
+            <span class="flex size-9 items-center justify-center rounded-full bg-cloud">
+              <img src={`${import.meta.env.BASE_URL}images/icons/play.svg`} alt="" width="13" height="13" class="ml-0.5 size-[13px]" />
+            </span>
+            <span class="text-[15px] font-semibold tracking-[-0.2344px] text-cloud">Assista ao vídeo</span>
+          </span>
+        </button>
+      </figure>
+
+      <figure class="figura order-2 hidden lg:order-1 lg:block lg:h-[330px] lg:w-0 lg:flex-grow-[209.906]">
+        <img src={FOTOS.notebook} alt="Estagiária trabalhando no notebook" loading="lazy" class="foto" />
+      </figure>
+
+      <!-- no mobile as duas últimas dividem a linha, com 216px de altura -->
+      <div class="order-3 flex h-[216px] gap-4 lg:contents">
+        <figure class="figura flex-1 lg:order-3 lg:h-[330px] lg:w-0 lg:flex-grow-[283.375]">
+          <img src={FOTOS.reuniao} alt="Reunião de time em volta de uma mesa" loading="lazy" class="foto" />
+        </figure>
+        <figure class="figura flex-1 lg:order-4 lg:h-[330px] lg:w-0 lg:flex-grow-[209.906]">
+          <img src={FOTOS.grupo} alt="Grupo de jovens colaborando" loading="lazy" class="foto" />
+        </figure>
+      </div>
+    </div>
+
+    <!-- ── CTA ──────────────────────────────────────────────────────── -->
+    <div class="lg:flex lg:justify-center lg:pt-11" data-reveal>
+      <Button href={INSCRICAO_URL} size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={INSCRICAO_URL} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
+    </div>
+  </div>
+</section>
+
+<!-- lightbox do vídeo -->
+<dialog id="video-dialog" class="video-dialog" aria-label="Vídeo do programa">
+  <button type="button" data-video-fechar class="video-fechar" aria-label="Fechar vídeo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+    </svg>
+  </button>
+  <video data-video-el controls playsinline preload="none" class="video-el"></video>
+</dialog>
+
+<style>
+  .figura {
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-night-08);
+  }
+
+  .foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms ease-out;
+  }
+
+  .figura:hover .foto {
+    transform: scale(1.05);
+  }
+
+  .video-dialog {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    display: none;
+    place-items: center;
+  }
+  .video-dialog[open] {
+    display: grid;
+  }
+  .video-dialog::backdrop {
+    background: rgb(4 6 26 / 0.9);
+  }
+
+  .video-el {
+    width: min(92vw, 1100px);
+    max-height: 82dvh;
+    border-radius: 16px;
+    background: #000;
+  }
+
+  .video-fechar {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.14);
+    color: var(--color-cloud);
+  }
+  .video-fechar:hover {
+    background: rgb(255 255 255 / 0.26);
+  }
+</style>
+
+<script>
+  import { revealOnScroll, revealWords, prefersReducedMotion } from '../../lib/motion';
+  import { VIDEO_URL } from '../../data/site';
+
+  revealWords('#sobre-titulo');
+  revealOnScroll('#o-programa [data-reveal]');
+
+  const dialog = document.querySelector<HTMLDialogElement>('#video-dialog');
+  const video = dialog?.querySelector<HTMLVideoElement>('[data-video-el]');
+
+  if (dialog && video) {
+    document.querySelector('[data-video-abrir]')?.addEventListener('click', () => {
+      // só carrega a mídia quando o usuário pede — nada de baixar vídeo à toa
+      if (!video.src) video.src = VIDEO_URL;
+      dialog.showModal();
+      video.play().catch(() => {});
+      // mesma entrada do VideoLightbox.jsx: mola 300/28
+      if (!prefersReducedMotion()) {
+        import('motion').then(({ animate }) =>
+          animate(video, { opacity: [0, 1], scale: [0.9, 1], y: [24, 0] }, { type: 'spring', stiffness: 300, damping: 28 })
+        );
+      }
+    });
+
+    const fechar = () => {
+      video.pause();
+      dialog.close();
+    };
+
+    dialog.querySelector('[data-video-fechar]')?.addEventListener('click', fechar);
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) fechar();
+    });
+    dialog.addEventListener('close', () => video.pause());
+  }
+</script>

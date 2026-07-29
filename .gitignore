@@ -1,0 +1,33 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# fontes de outro projeto que vieram junto no template (Unilever usa Century Gothic)
+Gotham-font-family-www.Dfonts.org/
+
+# screenshots de trabalho da comparação pixel-perfect (regeráveis via scripts/shot.mjs)
+docs/local/
+
+# referências do Figma são pesadas; baixar sob demanda pelos nodes no PROJECT.md
+docs/reference/*.png

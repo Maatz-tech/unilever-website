@@ -1,0 +1,28 @@
+---
+/**
+ * Botão da marca. Estilo mora em global.css (.btn / .btn-primary / .btn-invert).
+ * `invert` é a variante usada dentro das seções de fundo night.
+ */
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'invert';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { href, variant = 'primary', size = 'lg', class: className = '' } = Astro.props;
+
+const classes = ['btn', `btn-${variant}`, `btn-${size}`, className].filter(Boolean).join(' ');
+---
+
+{
+  href ? (
+    <a href={href} class={classes}>
+      <slot />
+    </a>
+  ) : (
+    <button type="button" class={classes}>
+      <slot />
+    </button>
+  )
+}

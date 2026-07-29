@@ -1,0 +1,289 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design tokens — LP Programa de Estágio Unilever 2027
+   Fonte de verdade: Figma RQaIpzUd9oxg3IZsFDkVnP (get_variable_defs)
+   NUNCA hard-codar cor/fonte fora deste arquivo.
+   ============================================================ */
+
+@theme {
+  /* --- Cores (1:1 com as variables do Figma) --- */
+  --color-night: #133062;      /* Primary/Night   — texto e fundos escuros */
+  --color-sky: #0066cc;        /* Primary/Sky     — cor de ação */
+  --color-sky-dark: #004d99;   /* Primary/Dark    — sombra sólida dos botões */
+  --color-sky-mid: #47a3ff;    /* Primary/Mid     */
+  --color-sky-pale: #c2e0ff;   /* Primary/Pale    */
+  --color-aqua: #23e7ff;       /* Primary/Water · Aqua/Mid — destaques */
+  --color-earth: #f6f7f0;      /* Primary/Earth   — fundo da timeline */
+  --color-cloud: #ffffff;      /* Primary/Cloud   */
+  --color-shade: #dddddd;      /* sombra sólida do botão branco (hero e seções night) */
+  --color-ink: #0c1014;        /* nome sob o avatar dos stories (fora das variables do Figma) */
+  --color-map-off: #e5eff9;    /* estados fora do programa, no mapa */
+
+  /* --- Derivadas: night com alpha (body copy, cards, bordas) --- */
+  --color-night-70: rgb(19 48 98 / 0.7);
+  --color-night-72: rgb(19 48 98 / 0.72);
+  --color-night-40: rgb(19 48 98 / 0.4);
+  --color-night-08: rgb(19 48 98 / 0.08);
+
+  /* --- Derivadas: on-dark (texto sobre fundo night) --- */
+  --color-on-dark-70: rgb(255 255 255 / 0.7);
+  --color-on-dark-45: rgb(255 255 255 / 0.45);
+  --color-on-dark-32: rgb(255 255 255 / 0.32);
+  --color-on-dark-15: rgb(255 255 255 / 0.15);
+  --color-on-dark-05: rgb(255 255 255 / 0.05);
+  --color-on-dark-10: rgb(255 255 255 / 0.1);
+
+  /* corpo de texto sobre night — sky-pale com alpha */
+  --color-pale-85: rgb(194 224 255 / 0.85);
+  --color-pale-70: rgb(194 224 255 / 0.7);
+
+  /* --- Tipografia ---
+     O design usa Century Gothic Paneuropean (licenciada).
+     Jost é a substituta temporária — geométrica da mesma família
+     de Futura. Quando os .woff2 chegarem: descomentar o @font-face
+     abaixo e a Century assume automaticamente (já está na frente
+     da cadeia). Nenhuma outra linha do projeto muda. */
+  --font-sans: "Century Gothic Paneuropean", "Jost", ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Layout --- */
+  --container-lp: 1216px;   /* largura do container (1440 - 112*2) */
+  --radius-card: 20px;
+  --radius-btn: 16px;
+  --radius-pill: 999px;
+}
+
+/* Quando a Century Gothic chegar, descomentar:
+@font-face {
+  font-family: "Century Gothic Paneuropean";
+  src: url("/fonts/century-gothic-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Century Gothic Paneuropean";
+  src: url("/fonts/century-gothic-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+*/
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-night);
+    background: var(--color-cloud);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Focus sempre visível — nunca remover sem substituir (Fase 9) */
+  :focus-visible {
+    outline: 3px solid var(--color-aqua);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* ============================================================
+   Utilitárias semânticas
+   Se apareceu 2× no design com o mesmo estilo, mora aqui —
+   não duplicar text-[32px] font-bold leading-[1.4] nas seções.
+   ============================================================ */
+
+@layer components {
+  /* conteúdo só para leitores de tela */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* --- Container --- */
+  .container-lp {
+    width: 100%;
+    max-width: var(--container-lp);
+    margin-inline: auto;
+    padding-inline: 12px;
+  }
+
+  /* --- Tipografia --- */
+  .h1 {
+    font-weight: 700;
+    font-size: 56px;
+    line-height: 1.1;
+  }
+
+  .h2 {
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.4;
+  }
+
+  .h3 {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.4;
+  }
+
+  .body {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-night-70);
+  }
+
+  .body-sm {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-night-70);
+  }
+
+  /* Body sobre fundo night */
+  .body-on-dark {
+    color: var(--color-on-dark-70);
+  }
+
+  /* Eyebrow — rótulo aqua acima do heading (ex.: "Pré Requisitos") */
+  .eyebrow {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-aqua);
+  }
+
+  /* --- Botões ---
+     O padrão da marca é a sombra SÓLIDA (sem blur) de 6px na cor
+     sky-dark. O padding é assimétrico de propósito (pt > pb),
+     é compensação óptica do Figma. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    line-height: 20px;
+    border-radius: var(--radius-btn);
+    white-space: nowrap;
+    transition: transform 150ms ease, filter 150ms ease;
+  }
+
+  .btn:active {
+    transform: translateY(3px);
+  }
+
+  .btn-primary {
+    background: var(--color-sky);
+    color: var(--color-cloud);
+    filter: drop-shadow(0 6px 0 var(--color-sky-dark));
+  }
+
+  .btn-primary:active {
+    filter: drop-shadow(0 3px 0 var(--color-sky-dark));
+  }
+
+  /* Invertido — usado dentro das seções de fundo night */
+  .btn-invert {
+    background: var(--color-cloud);
+    color: var(--color-sky);
+    filter: drop-shadow(0 6px 0 var(--color-shade));
+  }
+
+  .btn-invert:active {
+    filter: drop-shadow(0 3px 0 var(--color-shade));
+  }
+
+  /* Tamanhos — medidos no Figma */
+  .btn-sm {
+    font-size: 18px;
+    padding: 14px 24px 12px;
+  }
+
+  /* usado no mobile (hero, sobre) — entre o sm e o lg */
+  .btn-md {
+    font-size: 20px;
+    padding: 16px 24px 14px;
+  }
+
+  .btn-lg {
+    font-size: 24px;
+    padding: 24px 32px 22px;
+  }
+
+  /* --- Cards --- */
+  .card {
+    border-radius: var(--radius-card);
+    background: var(--color-cloud);
+  }
+
+  /* --- Pill / chip (benefícios, estados do mapa) --- */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+    line-height: 1.4;
+    padding: 12px 20px;
+  }
+}
+
+/* ============================================================
+   Estado inicial dos reveals
+   Só se aplica quando o JS está ativo (classe .js posta no <html> pelo
+   Base.astro). Sem JS o conteúdo aparece normalmente — nada de página em
+   branco, que era o problema do projeto React anterior.
+   ============================================================ */
+
+.js [data-hero-in],
+.js [data-hero-badge],
+.js [data-reveal],
+.js [data-reveal-stagger] > *,
+.js [data-reveal-words] > [data-palavra] {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-hero-in],
+  .js [data-hero-badge],
+  .js [data-reveal],
+  .js [data-reveal-stagger] > *,
+  .js [data-reveal-words] > [data-palavra] {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Movimento — respeitado globalmente (Fase 9 do playbook)
+   Framer Motion checa isso via useReducedMotion / matchMedia,
+   mas o CSS garante o resto.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

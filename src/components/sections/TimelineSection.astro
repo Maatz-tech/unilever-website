@@ -1,0 +1,135 @@
+---
+import Button from '../Button.astro';
+import { INSCRICAO_URL } from '../../data/site';
+
+/**
+ * Timeline — "As fases do game", fundo earth.
+ *
+ * Figma: 4208:19812 (desktop, 1216.48) · 4204:19231 (mobile, 997)
+ *
+ * A trilha é uma linha de 2px com gradiente que **se desenha conforme o
+ * scroll** (herdado do `useScroll` da versão React, aqui com `scroll()` do
+ * motion). Os ícones surgem em mola ao entrar na viewport.
+ */
+
+const FASES = [
+  { icone: 'tl-1', titulo: 'Inscrições', data: 'De agosto a setembro', cor: 'sky-dark' },
+  { icone: 'tl-2', titulo: 'Testes on-line', data: 'De setembro a outubro', cor: 'sky' },
+  { icone: 'tl-3', titulo: 'Laboratórios', data: 'De agosto a setembro', cor: 'sky-mid' },
+  { icone: 'tl-4', titulo: 'Oficina de Co-criação', data: 'De novembro a dezembro', cor: 'sky-dark' },
+  { icone: 'tl-5', titulo: 'Entrevista com os gestores', data: 'De novembro a dezembro', cor: 'sky' },
+  { icone: 'tl-6', titulo: 'Início na empresa', data: 'Fevereiro', cor: 'sky-mid' },
+];
+
+const COR = {
+  'sky-dark': { texto: 'text-sky-dark', fundo: 'bg-sky-dark' },
+  sky: { texto: 'text-sky', fundo: 'bg-sky' },
+  'sky-mid': { texto: 'text-sky-mid', fundo: 'bg-sky-mid' },
+};
+---
+
+<section id="jornada" class="relative overflow-hidden bg-earth py-[72px] lg:py-[120px]">
+  <!-- traço decorativo de fundo -->
+  <img
+    src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute -left-[45px] top-[330px] hidden w-[634px] -rotate-[88.81deg] lg:block"
+  />
+
+  <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">
+    <div class="flex w-full flex-col justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
+      <header class="flex flex-col gap-2 text-center lg:text-left" data-reveal>
+        <h2 class="text-[32px] font-bold leading-[1.2] text-sky lg:text-[48px]">As fases do game</h2>
+        <p class="text-[16px] leading-[1.5] text-night-72 lg:text-[24px]">
+          Conheça cada etapa do processo seletivo
+        </p>
+      </header>
+
+      <!-- ── trilha ───────────────────────────────────────────────────── -->
+      <div id="trilha" class="relative flex w-full flex-col gap-4 lg:max-w-[560px] lg:gap-[30.4px]">
+        <!-- linha de fundo + linha que se desenha -->
+        <div class="absolute bottom-7 left-[27px] top-7 w-0.5 rounded-full bg-night/12" aria-hidden="true"></div>
+        <div
+          data-trilha-progresso
+          class="absolute bottom-7 left-[27px] top-7 w-0.5 origin-top scale-y-0 rounded-full bg-gradient-to-b from-sky-dark via-sky to-sky-mid"
+          aria-hidden="true"
+        >
+        </div>
+
+        <ol class="contents">
+          {
+            FASES.map((fase, i) => (
+              <li class="relative flex items-center gap-4 lg:gap-5">
+                <span
+                  data-fase-icone
+                  class="relative z-10 grid size-14 shrink-0 place-items-center rounded-full border-[0.556px] border-black/10 bg-cloud"
+                >
+                  <img src={`${import.meta.env.BASE_URL}images/timeline/${fase.icone}.svg`} alt="" width="32" height="32" class="size-8" />
+                </span>
+
+                <article class="flex-1 rounded-2xl border-[0.556px] border-black/10 bg-cloud p-[20.556px] lg:p-[24.556px]">
+                  <div class="flex items-center justify-between gap-3">
+                    <h3 class:list={['text-[20px] font-bold leading-[1.2] lg:text-[24px]', COR[fase.cor].texto]}>
+                      {fase.titulo}
+                    </h3>
+                    <span
+                      class:list={[
+                        'grid size-6 shrink-0 place-items-center rounded-md text-[15px] text-cloud lg:size-8 lg:rounded-lg lg:text-[20px]',
+                        COR[fase.cor].fundo,
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {i + 1}
+                    </span>
+                  </div>
+                  <p class="pt-2 text-[16px] leading-[1.2] text-night-72 lg:pt-3 lg:text-[18px]">{fase.data}</p>
+                </article>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <div data-reveal>
+      <Button href={INSCRICAO_URL} size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={INSCRICAO_URL} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { revealOnScroll, prefersReducedMotion } from '../../lib/motion';
+
+  revealOnScroll('#jornada [data-reveal]');
+
+  const trilha = document.querySelector<HTMLElement>('#trilha');
+  const progresso = document.querySelector<HTMLElement>('[data-trilha-progresso]');
+  const icones = Array.from(document.querySelectorAll<HTMLElement>('[data-fase-icone]'));
+
+  if (trilha && progresso) {
+    if (prefersReducedMotion()) {
+      progresso.style.transform = 'scaleY(1)';
+    } else {
+      const { scroll, animate, inView } = await import('motion');
+
+      // a linha se desenha conforme a trilha atravessa a viewport
+      scroll(animate(progresso, { scaleY: [0, 1] }, { ease: 'linear' }), {
+        target: trilha,
+        offset: ['start 78%', 'end 72%'],
+      });
+
+      // ícones surgem em mola (mesmos valores do projeto React: 350 / 20)
+      for (const icone of icones) {
+        inView(
+          icone,
+          (el) => {
+            animate(el, { scale: [0, 1], opacity: [0, 1] }, { type: 'spring', stiffness: 350, damping: 20 });
+          },
+          { amount: 0.6 }
+        );
+      }
+    }
+  }
+</script>
