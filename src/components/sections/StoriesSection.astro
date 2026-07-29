@@ -14,8 +14,8 @@ import { STORIES } from '../../data/stories';
  * A borda do anel fica por FORA da caixa de layout (por isso `ring`, não
  * `border`): é o que faz a altura fechar em 261.876px, igual ao Figma.
  *
- * A faixa não rola sozinha: o usuário arrasta (touch nativo + Pointer
- * Events no desktop). O visualizador
+ * A faixa rola sozinha (CSS) e também aceita arraste, que pausa a animação.
+ * O visualizador
  * usa <dialog> nativo, que já entrega foco preso, ESC e backdrop de graça;
  * o Framer Motion entra só nas transições.
  */
@@ -23,37 +23,42 @@ import { STORIES } from '../../data/stories';
 ---
 
 <section class="overflow-hidden bg-cloud py-6 lg:py-14" aria-label="Depoimentos de estagiários">
-  <div class="faixa-stories" data-faixa>
-    <ul class="flex w-max gap-4 lg:gap-8">
+  <div class="faixa-mascara">
+    <div class="faixa-stories marquee" data-faixa>
       {
-        STORIES.map((story, i) => (
-          <li>
-            <button
-              type="button"
-              class="story-btn group flex w-[78px] flex-col items-center gap-[6.292px] py-[6.292px] lg:w-[110px]"
-              data-story={i}
-            >
-              <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
-                <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
-                  <img
-                    src={story.foto.replace('.webp', '-mini.webp')}
-                    alt=""
-                    width="91"
-                    height="91"
-                    loading="lazy"
-                    draggable="false"
-                    class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
-                  />
-                </span>
-              </span>
-              <span class="w-full truncate px-[4.8px] text-center text-[10.5px] leading-[1.5] text-ink lg:text-[14px]">
-                {story.nome}
-              </span>
-            </button>
-          </li>
+        [0, 1].map((copia) => (
+          <ul class="flex shrink-0 gap-4 pr-4 lg:gap-8 lg:pr-8" aria-hidden={copia === 1 ? 'true' : undefined}>
+            {STORIES.map((story, i) => (
+              <li>
+                <button
+                  type="button"
+                  class="story-btn group flex w-[78px] flex-col items-center gap-[6.292px] py-[6.292px] lg:w-[110px]"
+                  data-story={i}
+                  tabindex={copia === 1 ? -1 : undefined}
+                >
+                  <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
+                    <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
+                      <img
+                        src={story.foto.replace('.webp', '-mini.webp')}
+                        alt=""
+                        width="91"
+                        height="91"
+                        loading="lazy"
+                        draggable="false"
+                        class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
+                      />
+                    </span>
+                  </span>
+                  <span class="w-full truncate px-[4.8px] text-center text-[10.5px] leading-[1.5] text-ink lg:text-[14px]">
+                    {story.nome}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         ))
       }
-    </ul>
+    </div>
   </div>
 </section>
 
@@ -134,23 +139,24 @@ import { STORIES } from '../../data/stories';
 </dialog>
 
 <style>
-  /* --- faixa arrastável -----------------------------------------------
-     Sem rolagem automática: quem controla é o usuário. No touch usa a
-     rolagem nativa; no desktop o arraste é feito por Pointer Events (ver
-     script), porque mouse não gera scroll nativo. */
+  /* --- faixa: autoplay + arraste ---------------------------------------
+     A posição é controlada por JS (um só `offset`), não por @keyframes: assim o
+     arraste e o autoplay compartilham o mesmo valor e ao soltar a faixa segue de
+     onde parou, sem salto. O fade lateral é máscara — não pinta nada por cima. */
+  .faixa-mascara {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    overflow: hidden;
+  }
+
   .faixa-stories {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
+    display: flex;
+    width: max-content;
     cursor: grab;
-    -webkit-overflow-scrolling: touch;
+    will-change: transform;
   }
-  .faixa-stories::-webkit-scrollbar {
-    display: none;
-  }
+
   .faixa-stories[data-arrastando] {
     cursor: grabbing;
-    scroll-behavior: auto;
     user-select: none;
   }
 
@@ -383,28 +389,70 @@ import { STORIES } from '../../data/stories';
       if (e.key === 'ArrowLeft') navegar(-1);
     });
 
-    // ── arraste da faixa (o mouse não gera scroll nativo) ──────────────
+    // ── faixa: autoplay e arraste no mesmo `offset` ────────────────────
     const faixa = document.querySelector<HTMLElement>('[data-faixa]');
-    if (faixa) {
-      let inicioX = 0;
-      let inicioScroll = 0;
+    const mascara = document.querySelector<HTMLElement>('.faixa-mascara');
+
+    if (faixa && mascara) {
+      const VOLTA = 60; // segundos para percorrer uma cópia inteira
+      let offset = 0;
+      let metade = faixa.scrollWidth / 2;
+      let pausado = false;
       let arrastando = false;
+      let inicioX = 0;
+      let offsetInicial = 0;
       let percorrido = 0;
 
+      const medir = () => {
+        metade = faixa.scrollWidth / 2;
+      };
+      new ResizeObserver(medir).observe(faixa);
+
+      const aplicar = () => {
+        faixa.style.transform = `translateX(${offset}px)`;
+      };
+
+      // autoplay: mesmo `offset`, então o arraste continua de onde parou
+      if (!prefersReducedMotion()) {
+        let anterior = performance.now();
+        const passo = (agora: number) => {
+          const dt = (agora - anterior) / 1000;
+          anterior = agora;
+          if (!pausado && !arrastando && metade > 0) {
+            offset -= (metade / VOLTA) * dt;
+            if (offset <= -metade) offset += metade; // volta ao início sem salto
+            aplicar();
+          }
+          requestAnimationFrame(passo);
+        };
+        requestAnimationFrame(passo);
+      }
+
+      mascara.addEventListener('mouseenter', () => (pausado = true));
+      mascara.addEventListener('mouseleave', () => (pausado = false));
+      faixa.addEventListener('focusin', () => (pausado = true));
+      faixa.addEventListener('focusout', () => (pausado = false));
+
       faixa.addEventListener('pointerdown', (e) => {
-        if (e.pointerType === 'touch') return; // touch usa a rolagem nativa
         arrastando = true;
         percorrido = 0;
         inicioX = e.clientX;
-        inicioScroll = faixa.scrollLeft;
+        offsetInicial = offset;
         faixa.setAttribute('data-arrastando', '');
+        faixa.setPointerCapture(e.pointerId);
       });
 
       faixa.addEventListener('pointermove', (e) => {
         if (!arrastando) return;
         const dx = e.clientX - inicioX;
         percorrido = Math.max(percorrido, Math.abs(dx));
-        faixa.scrollLeft = inicioScroll - dx;
+        offset = offsetInicial + dx;
+        // mantém dentro de uma cópia para o loop seguir infinito
+        if (metade > 0) {
+          while (offset <= -metade) offset += metade;
+          while (offset > 0) offset -= metade;
+        }
+        aplicar();
       });
 
       const soltarFaixa = () => {
@@ -413,10 +461,9 @@ import { STORIES } from '../../data/stories';
         faixa.removeAttribute('data-arrastando');
       };
       faixa.addEventListener('pointerup', soltarFaixa);
-      faixa.addEventListener('pointerleave', soltarFaixa);
       faixa.addEventListener('pointercancel', soltarFaixa);
 
-      // arrastar não deve abrir o story: cancela o clique se houve deslocamento
+      // arrastar não deve abrir o story
       faixa.addEventListener(
         'click',
         (e) => {

@@ -62,6 +62,14 @@ const SLIDES = [
   },
 ];
 
+/**
+ * GIF 1x1 transparente. Um <img> sem `src` e com largura/altura definidas
+ * desenha a caixa de imagem quebrada do navegador — aparecia uma borda cinza
+ * quadrada em volta da pessoa antes de carregar.
+ */
+const PIXEL_VAZIO =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 /** no mobile a pessoa é sempre 370 de largura, centrada, em top 253.68 */
 const M_PES = { w: 370, top: 253.68 };
 ---
@@ -140,7 +148,8 @@ const M_PES = { w: 370, top: 253.68 };
         SLIDES.map((slide, i) => (
           <img
             data-hero-pes
-            {...{ "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.m.pes}.webp` }}
+            src={i === 0 ? `${import.meta.env.BASE_URL}images/hero/${slide.m.pes}.webp` : PIXEL_VAZIO}
+            {...(i === 0 ? {} : { 'data-src': `${import.meta.env.BASE_URL}images/hero/${slide.m.pes}.webp` })}
             alt=""
             aria-hidden="true"
             class="pointer-events-none absolute left-1/2 max-w-none -translate-x-1/2"
@@ -258,24 +267,6 @@ const M_PES = { w: 370, top: 253.68 };
               <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>
             </a>
 
-      <!-- Navegação do carrossel. Não existe no Figma: adicionada para dar
-           controle manual ao usuário, alinhada ao CTA no desktop e abaixo dele
-           no mobile. -->
-      <ul class="absolute left-[78.38em] top-[574em] flex items-center gap-[8em]" aria-label="Escolher slide">
-        {
-          SLIDES.map((_, i) => (
-            <li>
-              <button
-                type="button"
-                data-hero-dot={i}
-                aria-label={`Slide ${i + 1} de ${SLIDES.length}`}
-                aria-current={i === 0 ? 'true' : 'false'}
-                class="bolinha"
-              />
-            </li>
-          ))
-        }
-      </ul>
           </div>
 
           <div class="relative h-[316em] w-[372em] shrink-0">
@@ -303,7 +294,8 @@ const M_PES = { w: 370, top: 253.68 };
           SLIDES.map((slide, i) => (
             <img
               data-hero-pes
-              {...{ "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.d.pes}.webp` }}
+              src={i === 0 ? `${import.meta.env.BASE_URL}images/hero/${slide.d.pes}.webp` : PIXEL_VAZIO}
+              {...(i === 0 ? {} : { 'data-src': `${import.meta.env.BASE_URL}images/hero/${slide.d.pes}.webp` })}
               alt=""
               aria-hidden="true"
               class="pointer-events-none absolute max-w-none"
@@ -313,6 +305,28 @@ const M_PES = { w: 370, top: 253.68 };
             />
           ))
         }
+
+      <!-- Navegação do carrossel. Vive no nível do PALCO, não dentro do
+             content-side: aquele bloco tem overflow-hidden e 538em de altura,
+             então os bullets em 574em ficavam cortados (invisíveis).
+             O left 178.38 = 100 (borda do content-side) + 78.38 (mesmo x do CTA). -->
+        <!-- Não existe no Figma: adicionada para dar
+           -->
+      <ul class="absolute left-[178.38em] top-[574em] flex items-center gap-[8em]" aria-label="Escolher slide">
+        {
+          SLIDES.map((_, i) => (
+            <li>
+              <button
+                type="button"
+                data-hero-dot={i}
+                aria-label={`Slide ${i + 1} de ${SLIDES.length}`}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class="bolinha"
+              />
+            </li>
+          ))
+        }
+      </ul>
 
         <img
           data-hero-in="2"
