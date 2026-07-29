@@ -66,7 +66,12 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok };
       {
         LEGAL_LINKS.map((link) => (
           <li>
-            <a href={link.href} class="body-sm leading-[1.2] underline transition-colors hover:text-sky">
+            <a
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="body-sm leading-[1.2] underline transition-colors hover:text-sky"
+            >
               {link.label}
             </a>
           </li>

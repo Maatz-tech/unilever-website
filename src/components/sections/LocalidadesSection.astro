@@ -179,8 +179,10 @@ const inicial = localidades[0];
     cursor: pointer;
     transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
   }
-  .chip:hover {
+  .chip:hover:not([aria-pressed='true']) {
     border-color: var(--color-sky);
+    background: var(--color-sky-pale);
+    color: var(--color-sky-dark);
   }
   .chip[aria-pressed='true'] {
     background: var(--color-sky);

@@ -29,17 +29,20 @@ const COR = {
 ---
 
 <section id="jornada" class="relative overflow-hidden bg-earth py-[72px] lg:py-[120px]">
-  <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">
-    <!-- Traço decorativo. Fica ancorado ao CONTAINER, não à seção: no Figma ele
-         está a -45px da borda da tela de 1440, o que equivale a -157px da borda
-         do container de 1216. Ancorado na seção, ele fugia para a esquerda em
-         telas largas. -->
+  <!-- Traço decorativo encostado na BORDA DA TELA. A moldura tem o tamanho da
+       caixa já rotacionada (615×646), então `left-0` põe a aresta visível em 0;
+       a imagem gira dentro dela. Ancorar na seção (e não no container) é o que
+       mantém isso em qualquer largura. -->
+  <div class="pointer-events-none absolute left-0 top-[258px] hidden h-[646px] w-[615px] lg:block" aria-hidden="true">
     <img
       src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
       alt=""
-      aria-hidden="true"
-      class="pointer-events-none absolute -left-[157px] top-[258px] hidden w-[634px] -rotate-[88.81deg] lg:block"
+      class="absolute left-1/2 top-1/2 h-[602px] w-[634px] -translate-x-1/2 -translate-y-1/2 -rotate-[88.81deg]"
     />
+  </div>
+
+  <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">
+
 
     <div class="flex w-full flex-col justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
       <header class="flex flex-col gap-2 text-center lg:text-left" data-reveal>
@@ -71,7 +74,7 @@ const COR = {
                   <img src={`${import.meta.env.BASE_URL}images/timeline/${fase.icone}.svg`} alt="" width="32" height="32" class="size-8" />
                 </span>
 
-                <article class="flex-1 rounded-2xl border-[0.556px] border-black/10 bg-cloud p-[20.556px] lg:p-[24.556px]">
+                <article class="carta-fase flex-1 rounded-2xl border-[0.556px] border-black/10 bg-cloud p-[20.556px] lg:p-[24.556px]">
                   <div class="flex items-center justify-between gap-3">
                     <h3 class:list={['text-[20px] font-bold leading-[1.2] lg:text-[24px]', COR[fase.cor].texto]}>
                       {fase.titulo}
@@ -101,6 +104,18 @@ const COR = {
     </div>
   </div>
 </section>
+
+<style>
+  /* Hover do card de fase, igual ao projeto React */
+  .carta-fase {
+    transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+  }
+  .carta-fase:hover {
+    transform: translateY(-4px);
+    border-color: rgb(71 163 255 / 0.6);
+    box-shadow: 0 12px 32px -12px rgb(19 32 51 / 0.25);
+  }
+</style>
 
 <script>
   import { revealOnScroll, prefersReducedMotion } from '../../lib/motion';

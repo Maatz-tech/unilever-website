@@ -13,7 +13,7 @@ export const INSCRICAO_URL = '#inscricao';
 export const VIDEO_YOUTUBE_ID = 'rHH1sZPhw9U';
 
 export const NAV_LINKS = [
-  { label: 'O programa', href: '#o-programa' },
+  { label: 'O Programa', href: '#o-programa' },
   { label: 'A Unilever', href: '#a-unilever' },
   { label: 'Pré Requisitos', href: '#pre-requisitos' },
   { label: 'Localidades', href: '#localidades' },
@@ -29,8 +29,14 @@ export const SOCIAL_LINKS = [
   { label: 'TikTok', href: '#', icon: 'TikTok' },
 ] as const;
 
-/** TODO: substituir pelas URLs reais (ver PROJECT.md) */
+/** Avisos oficiais da Unilever (versão Brasil / português) */
 export const LEGAL_LINKS = [
-  { label: 'Aviso de Cookies', href: '#' },
-  { label: 'Política de Privacidade', href: '#' },
+  {
+    label: 'Aviso de Cookies',
+    href: 'https://www.unilevernotices.com/cookie-notices/brazil-portuguese.html',
+  },
+  {
+    label: 'Política de Privacidade',
+    href: 'https://www.unilevernotices.com/privacy-notices/brazil-portuguese.html',
+  },
 ] as const;
