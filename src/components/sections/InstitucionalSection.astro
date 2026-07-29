@@ -51,8 +51,13 @@ import { INSTITUCIONAL } from '../../data/institucional';
           >
             {/* imagem: em cima no mobile, à direita no desktop */}
             <div class="h-[296px] shrink-0 overflow-hidden lg:order-2 lg:h-full lg:w-1/2">
+              {/* A caixa é 340×296 no mobile e 596×520 no desktop; servir sempre
+                  o arquivo de 1110px desperdiçava ~200KB por slide, e são cinco.
+                  A variante de 680px cobre o mobile até 2x. */}
               <img
                 src={slide.foto}
+                srcset={`${slide.foto.replace('.webp', '-sm.webp')} 680w, ${slide.foto} 1110w`}
+                sizes="(min-width: 1024px) 596px, 340px"
                 alt={slide.alt}
                 width="1110"
                 height="1036"
@@ -164,9 +169,12 @@ import { INSTITUCIONAL } from '../../data/institucional';
     z-index: 1;
   }
 
-  /* durante o arraste o transform é inline; a transição sairia na frente */
+  /* durante o arraste o transform é inline; a transição sairia na frente. E o
+     card não seleciona texto: arrastar sobre o parágrafo pintava a seleção. */
   .carta-slide[data-arrastando] {
     transition: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .carta-slide[inert] {

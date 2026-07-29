@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import { localidades as LOCALIDADES } from '../data/localidades.js';
+import { BENEFICIOS } from '../data/beneficios';
 
 interface Props {
   title: string;
@@ -20,6 +22,17 @@ const canonical = new URL(Astro.url.pathname, SITE_URL).href;
 const FONTS = `${import.meta.env.BASE_URL}fonts/`;
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
 
+/**
+ * Datas do processo (Figma / timeline da seção "As fases do game"), agora com
+ * ano fechado: as inscrições são em 2026 e o início na empresa em fevereiro de
+ * 2027 — daí o nome do programa. O Figma traz só mês ("de agosto a setembro"),
+ * então o DIA é suposição: 1º de agosto a 30 de setembro. Se o cliente fechar
+ * as datas exatas, é aqui que muda.
+ */
+const INSCRICOES_ABREM = '2026-08-01';
+const INSCRICOES_FECHAM = '2026-09-30T23:59:59-03:00';
+const INICIO_NA_EMPRESA = '2027-02-01';
+
 /** Structured data: a página é uma vaga de estágio + a organização */
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -30,6 +43,47 @@ const jsonLd = {
       name: 'Unilever',
       url: SITE_URL,
       logo: new URL(`${import.meta.env.BASE_URL}images/brand/unilever.webp`, SITE_URL).href,
+    },
+    {
+      /**
+       * A vaga em si. É o que faz um buscador (Google Jobs) e um agente
+       * entenderem o programa: prazo, formato, localidades e requisitos.
+       * Só passa a valer quando o `noindex` sair, no lançamento.
+       */
+      '@type': 'JobPosting',
+      '@id': `${SITE_URL}#vaga`,
+      title: 'Estágio — Programa de Estágio Unilever 2027',
+      description:
+        '<p>Programa de Estágio Unilever 2027. Atuação em projetos reais, com mentoria de lideranças, contato com um negócio global e trilha de desenvolvimento.</p>' +
+        '<h3>Pré-requisitos</h3><ul>' +
+        '<li>Cursando Instituição de Ensino Superior (bacharelado, licenciatura ou tecnólogo), com previsão de conclusão entre 12/2027 e 12/2028.</li>' +
+        '<li>Disponibilidade para estagiar em formato híbrido e presencial.</li>' +
+        '<li>Disponibilidade para 30 horas semanais (6h diárias), sem compensação de horas.</li>' +
+        '</ul>',
+      datePosted: INSCRICOES_ABREM,
+      validThrough: INSCRICOES_FECHAM,
+      jobStartDate: INICIO_NA_EMPRESA,
+      employmentType: 'INTERN',
+      educationRequirements: {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: 'Ensino superior em andamento',
+      },
+      workHours: '30 horas semanais, 6h diárias',
+      hiringOrganization: { '@id': `${SITE_URL}#organizacao` },
+      jobLocationType: undefined,
+      jobLocation: LOCALIDADES.flatMap((uf) =>
+        uf.cidades.map((cidade) => ({
+          '@type': 'Place',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: cidade,
+            addressRegion: uf.nome,
+            addressCountry: 'BR',
+          },
+        }))
+      ),
+      jobBenefits: BENEFICIOS.map((b) => b.texto.replace(/\*$/, '')).join(', '),
+      directApply: false,
     },
     {
       '@type': 'WebSite',

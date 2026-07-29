@@ -16,7 +16,7 @@ import { INSCRICAO_URL } from '../../data/site';
  *   desktop: min(1px, (100vw - 48px) / 1392)  → trava em 1:1 a partir de 1440px
  *   mobile:  100vw / 390                      → sempre full-bleed
  *
- * PERFORMANCE: todas as imagens dos slides são `loading={i === 0 ? 'eager' : 'lazy'}`, inclusive o
+ * PERFORMANCE: todas as imagens dos slides são `loading="lazy"`, inclusive o
  * slide 0. Quem prioriza o fundo correto é o `<link rel="preload" media>` do
  * Base.astro — assim o palco escondido por `display:none` não baixa nada.
  *
@@ -91,7 +91,7 @@ const M_PES = { w: 370, top: 253.68 };
                 {...(i === 0 ? { src: `${import.meta.env.BASE_URL}images/hero/${slide.m.bg}.webp` } : { "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.m.bg}.webp` })}
                 alt=""
                 class="absolute inset-0 size-full object-cover"
-                loading={i === 0 ? 'eager' : 'lazy'}
+                loading="lazy"
                 />
               {slide.dim > 0 && <div class="absolute inset-0" style={`background:rgb(0 0 0 / ${slide.dim})`} />}
             </div>
@@ -109,7 +109,7 @@ const M_PES = { w: 370, top: 253.68 };
           src={`${import.meta.env.BASE_URL}images/hero/vinheta.webp`}
           alt=""
           class="absolute left-1/2 top-1/2 h-[390em] w-[639.9em] -translate-x-1/2 -translate-y-1/2 -rotate-90"
-          loading="eager"
+          loading="lazy"
         />
       </div>
       <div class="pointer-events-none absolute left-[13.61em] top-[12.5em] h-[614.9em] w-[362.78em]">
@@ -128,7 +128,7 @@ const M_PES = { w: 370, top: 253.68 };
           src={`${import.meta.env.BASE_URL}images/hero/lockup.webp`}
           alt="Programa de Estágio Unilever 2027"
           class="absolute left-1/2 top-[43.04em] h-[99.245em] w-[172.479em] -translate-x-1/2"
-          loading="eager"
+          loading="lazy"
           fetchpriority="high"
         />
         <img
@@ -137,7 +137,7 @@ const M_PES = { w: 370, top: 253.68 };
           alt="Bora elevar o game?"
           class="absolute top-[177.1em] h-[47.077em] w-[152.146em] -translate-x-1/2"
           style="left:calc(50% - 10.17em)"
-          loading="eager"
+          loading="lazy"
           fetchpriority="high"
         />
       </div>
@@ -154,7 +154,7 @@ const M_PES = { w: 370, top: 253.68 };
             aria-hidden="true"
             class="pointer-events-none absolute left-1/2 max-w-none -translate-x-1/2"
             style={`top:${M_PES.top}em;width:${M_PES.w}em;height:${slide.m.h}em;opacity:${i === 0 ? 1 : 0}`}
-            loading={i === 0 ? 'eager' : 'lazy'}
+            loading="lazy"
             fetchpriority={i === 0 ? 'high' : undefined}
           />
         ))
@@ -213,7 +213,7 @@ const M_PES = { w: 370, top: 253.68 };
       width="1368"
       height="273"
       class="mx-6 block h-auto w-[calc(100%-48px)]"
-      loading="eager"
+      loading="lazy"
     />
   </div>
 
@@ -229,7 +229,7 @@ const M_PES = { w: 370, top: 253.68 };
                   {...(i === 0 ? { src: `${import.meta.env.BASE_URL}images/hero/${slide.d.bg}.webp` } : { "data-src": `${import.meta.env.BASE_URL}images/hero/${slide.d.bg}.webp` })}
                   alt=""
                   class:list={['absolute inset-0 size-full object-cover', slide.d.blur && 'scale-[1.03] blur-[2px]']}
-                  loading={i === 0 ? 'eager' : 'lazy'}
+                  loading="lazy"
                   fetchpriority={i === 0 ? 'high' : undefined}
                 />
                 {slide.dim > 0 && <div class="absolute inset-0" style={`background:rgb(0 0 0 / ${slide.dim})`} />}
@@ -242,7 +242,7 @@ const M_PES = { w: 370, top: 253.68 };
           src={`${import.meta.env.BASE_URL}images/hero/vinheta.webp`}
           alt=""
           class="pointer-events-none absolute inset-0 size-full object-cover"
-          loading="eager"
+          loading="lazy"
         />
         <div class="pointer-events-none absolute inset-0 bg-black/10"></div>
 
@@ -259,7 +259,7 @@ const M_PES = { w: 370, top: 253.68 };
               src={`${import.meta.env.BASE_URL}images/hero/lockup.webp`}
               alt="Programa de Estágio Unilever 2027"
               class="absolute left-[78.38em] top-[77.97em] h-[191.034em] w-[332em]"
-              loading="eager"
+              loading="lazy"
               fetchpriority="high"
             />
 
@@ -281,7 +281,7 @@ const M_PES = { w: 370, top: 253.68 };
               alt="Bora elevar o game?"
               class="absolute left-[0.39em] top-[0.17em] w-[372em]"
               style="aspect-ratio:1115/345"
-              loading="eager"
+              loading="lazy"
               fetchpriority="high"
             />
 
@@ -305,7 +305,7 @@ const M_PES = { w: 370, top: 253.68 };
               aria-hidden="true"
               class="pointer-events-none absolute max-w-none"
               style={`left:${slide.d.left}em;top:${slide.d.top}em;width:${slide.d.w}em;height:${slide.d.h}em;opacity:${i === 0 ? 1 : 0}`}
-              loading={i === 0 ? 'eager' : 'lazy'}
+              loading="lazy"
               fetchpriority={i === 0 ? 'high' : undefined}
             />
           ))
@@ -339,7 +339,7 @@ const M_PES = { w: 370, top: 253.68 };
           alt="Dove, OMO, Hellmann's e Rexona"
           class="absolute top-[512.71em] h-auto w-[342em] -translate-x-1/2"
           style="left:calc(50% + 424.65em)"
-          loading="eager"
+          loading="lazy"
         />
       </div>
     </div>
@@ -359,6 +359,15 @@ const M_PES = { w: 370, top: 253.68 };
     overflow: hidden;
   }
 
+  /* Enquanto o gesto de swipe está em curso o palco não seleciona texto —
+     arrastar sobre a chamada saía pintando a seleção do navegador. O atributo
+     entra no pointerdown e sai no pointerup, então fora do arraste o texto
+     segue selecionável normalmente. */
+  [data-hero-stage][data-arrastando] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   .hero-stage {
     font-size: min(1px, calc((100vw - 48px) / 1392));
     position: absolute;
@@ -368,6 +377,10 @@ const M_PES = { w: 370, top: 253.68 };
   }
 
   /* bolinhas do carrossel: pílula que estica quando ativa */
+  /* PENDENTE DE DECISÃO: 8×8em é um alvo de toque pequeno (a WCAG 2.2 pede
+     24×24). Aumentar por padding faz os alvos se sobreporem e o axe reprova por
+     espaçamento, então passar de verdade exige espalhar as pílulas na tela —
+     mudança visual, não técnica. */
   .bolinha {
     display: block;
     width: 8em;
@@ -499,7 +512,35 @@ const M_PES = { w: 370, top: 253.68 };
       if (total > 1) timer = setInterval(() => irPara((atual + 1) % total), INTERVALO);
     };
 
-    iniciar();
+    /**
+     * O autoplay só começa quando as imagens dos OUTROS slides já chegaram.
+     * Elas só começam a baixar no `load` (data-src), e numa rede estrangulada
+     * isso é tarde: trocar de slide antes disso mostra um <img> sem bytes e o
+     * fundo do slide 2 virava o LCP da página (18,6s no perfil móvel do
+     * Lighthouse, com 12s só de espera pelo download). Esperar os bytes é o
+     * comportamento correto de qualquer jeito — ninguém quer ver o slide vazio.
+     * O teto de 8s garante que o carrossel ande mesmo se algo falhar.
+     */
+    const imagensProntas = () => {
+      const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('[data-hero-stage] img'));
+      return Promise.race([
+        Promise.all(
+          imgs.map(
+            (im) =>
+              im.complete ||
+              new Promise((ok) => {
+                im.addEventListener('load', ok, { once: true });
+                im.addEventListener('error', ok, { once: true });
+              })
+          )
+        ),
+        new Promise((ok) => setTimeout(ok, 8000)),
+      ]);
+    };
+
+    const comecarAutoplay = () => void imagensProntas().then(iniciar);
+    if (document.readyState === 'complete') comecarAutoplay();
+    else window.addEventListener('load', comecarAutoplay, { once: true });
 
     for (const dot of document.querySelectorAll<HTMLElement>('[data-hero-dot]')) {
       dot.addEventListener('click', () => {
@@ -538,12 +579,14 @@ const M_PES = { w: 370, top: 253.68 };
           inicioX = e.clientX;
           inicioY = e.clientY;
           palco.style.cursor = 'grabbing';
+          palco.setAttribute('data-arrastando', '');
         },
         { passive: true }
       );
 
       palco.addEventListener('pointerup', (e) => {
         palco.style.cursor = 'grab';
+        palco.removeAttribute('data-arrastando');
         if (!ativo) return;
         ativo = false;
         const dx = e.clientX - inicioX;
@@ -557,6 +600,7 @@ const M_PES = { w: 370, top: 253.68 };
       palco.addEventListener('pointercancel', () => {
         ativo = false;
         palco.style.cursor = 'grab';
+        palco.removeAttribute('data-arrastando');
       });
     }
   }
