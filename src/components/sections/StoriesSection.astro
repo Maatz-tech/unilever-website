@@ -165,21 +165,23 @@ import { STORIES } from '../../data/stories';
      mesmo do avatar dentro do card. Seguimos o render. */
   .anel {
     background: linear-gradient(140deg, var(--color-aqua), var(--color-sky));
-    transition: filter 200ms ease;
+    transition: background 300ms ease;
   }
+  /* group-hover:border-water do Stories.jsx: o anel vira aqua cheio */
   .group:hover .anel {
-    filter: brightness(1.15) saturate(1.2);
+    background: var(--color-aqua);
   }
 
   .story-btn {
     cursor: pointer;
     transition: transform 200ms ease;
   }
+  /* whileHover={{scale:1.06, y:-3}} / whileTap={{scale:0.95}} do legado */
   .story-btn:hover {
-    transform: translateY(-3px) scale(1.04);
+    transform: translateY(-3px) scale(1.06);
   }
   .story-btn:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
 
   /* --- dialog -------------------------------------------------------- */

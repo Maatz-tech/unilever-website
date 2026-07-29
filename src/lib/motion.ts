@@ -142,3 +142,60 @@ function mostrar(els: ArrayLike<HTMLElement>) {
     el.style.transform = 'none';
   }
 }
+
+/**
+ * Reveal lateral com desfoque — usado nos pilares de Benefícios e nos cards da
+ * Timeline no projeto React: `initial={{opacity:0, x:32, filter:'blur(8px)'}}`.
+ * `passo` escalona os itens (0.18 em Benefícios, 0 na Timeline).
+ */
+export async function revealFromX(selector: string, x = 32, passo = 0, duracao = 0.55) {
+  const alvos = document.querySelectorAll<HTMLElement>(selector);
+  if (!alvos.length) return;
+  if (prefersReducedMotion()) return mostrar(alvos);
+
+  const { animate, inView } = await import('motion');
+
+  Array.from(alvos).forEach((el, i) => {
+    inView(
+      el,
+      () => {
+        animate(
+          el,
+          { opacity: [0, 1], x: [x, 0], filter: ['blur(8px)', 'blur(0px)'] },
+          { duration: duracao, delay: i * passo, ease: EASE }
+        );
+      },
+      { amount: 0.2 }
+    );
+  });
+}
+
+/**
+ * Linha que se desenha da esquerda para a direita (`scaleX: 0 → 1`).
+ * No projeto React são os divisores entre os pilares de Benefícios, com
+ * delay `i * 0.18 + 0.25`.
+ *
+ * ATENÇÃO: observa o elemento PAI, não a linha. Um elemento com `scaleX(0)` tem
+ * largura zero, e o IntersectionObserver nunca reporta interseção para caixas de
+ * área zero — observando a própria linha, a animação nunca disparava.
+ */
+export async function drawLine(selector: string, passo = 0.18, atraso = 0.25) {
+  const alvos = document.querySelectorAll<HTMLElement>(selector);
+  if (!alvos.length) return;
+  if (prefersReducedMotion()) {
+    for (const el of Array.from(alvos)) el.style.transform = 'scaleX(1)';
+    return;
+  }
+
+  const { animate, inView } = await import('motion');
+
+  Array.from(alvos).forEach((el, i) => {
+    inView(
+      el.parentElement ?? el,
+      () => {
+        animate(el, { scaleX: [0, 1] }, { duration: 0.6, delay: i * passo + atraso, ease: EASE });
+      },
+      { amount: 0.2 }
+    );
+  });
+}

@@ -13,7 +13,7 @@ export const INSCRICAO_URL = '#inscricao';
 export const VIDEO_YOUTUBE_ID = 'rHH1sZPhw9U';
 
 export const NAV_LINKS = [
-  { label: 'O Programa', href: '#o-programa' },
+  { label: 'O programa', href: '#o-programa' },
   { label: 'A Unilever', href: '#a-unilever' },
   { label: 'Pré Requisitos', href: '#pre-requisitos' },
   { label: 'Localidades', href: '#localidades' },

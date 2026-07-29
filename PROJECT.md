@@ -336,3 +336,50 @@ Reportado: hero desalinhado em ultrawide. A auditoria em 8 larguras (390 →
 
 Verificado: sem overflow horizontal e hero centrado em 390, 768, 1024, 1280,
 1440, 1920, 2560 e 3440px.
+
+---
+
+## Paridade de animações com o projeto React (../unilever)
+
+Auditoria feita comando por comando sobre os `initial/animate/whileHover/
+whileTap/transition` de cada componente do legado. Portado 1:1:
+
+| Seção | Animação | Valores |
+|---|---|---|
+| Header | entrada | `y -24 → 0`, 0.5s easeOut |
+| Header | logo / links | `opacity .8` · sublinhado que cresce (300ms) |
+| Hero | Ken Burns | `scale 1.05 → 1`, 1s |
+| Hero | pessoa | `y 60 → 0`, sai em `y -24`, 0.7s |
+| Hero | cascata | `y 32 → 0`, delay 0.15·i |
+| Hero | badge | mola 300/20, delay 0.5 |
+| Stories | avatar | `scale 1.06, y -3` (mola 400/22) · tap 0.95 · anel vira aqua |
+| Stories | visualizador | card mola 300/28 · foto `scale 1.1→1, op .6→1` · texto blur 8px delay .25 · barra 6s linear |
+| Sobre | título | palavra a palavra, blur 8px, passo 0.045 |
+| Sobre | parágrafos | escalonados (delays 0.15 e 0.3) |
+| Sobre | fotos | `scale 1.05` no hover (500ms) |
+| Sobre | play / véu | `scale 1.1` · véu para `opacity .9` |
+| Institucional | baralho | mola 260/30 mass 0.9 |
+| Institucional | arraste | `dragElastic .22`, limiar 60px |
+| Institucional | setas | `y -2` no hover · tap `scale .9` · inativa clareia |
+| Pré-requisitos | cards | stagger 0.13 com blur 10px |
+| Pré-requisitos | hover | `y -4`, borda aqua/40, fundo branco/8 |
+| Pré-requisitos | ícone | caixa vira aqua cheia e o ícone inverte |
+| Localidades | troca de estado | `y 12 → 0`, blur 6px, 0.3s |
+| Localidades | pinos | `@keyframes pulso` 2.4s, delay 0.28·i |
+| Localidades | "Confira as áreas" | seta desliza 4px · texto escurece |
+| Localidades | chips | tap `scale .95` · hover com fundo pale |
+| Benefícios | foto | entra da esquerda (`x -40`), 0.7s |
+| Benefícios | pilares | entram da direita (`x 32`), blur 8px, delay 0.18·i |
+| Benefícios | divisores | `scaleX 0 → 1`, delay 0.18·i + 0.25 |
+| Benefícios | pills | `scale 1.04` no hover · stagger 0.08 |
+| Timeline | trilha | linha se desenha com o scroll |
+| Timeline | ícones | mola 350/20 |
+| Timeline | cards | entram da direita (`x 32`), blur 8px, 0.5s |
+| Timeline | hover | `y -4`, borda sky-mid/60, sombra |
+| Marquee | faixa | 40s linear, pausa no hover |
+| Vídeo | lightbox | mola 300/28 |
+
+**Armadilha encontrada:** um elemento com `scaleX(0)` tem largura zero, e o
+IntersectionObserver **nunca** reporta interseção para caixas de área zero — o
+`drawLine` observava a própria linha e nunca disparava, deixando os divisores de
+Benefícios invisíveis. Passou a observar o elemento pai.

@@ -59,9 +59,9 @@ const REQUISITOS = [
         <ul id="req-cards" data-reveal-stagger class="flex flex-1 flex-col gap-4">
           {
             REQUISITOS.map((req) => (
-              <li class="carta-vidro flex flex-col justify-center gap-4 py-[24.556px] pl-[24.556px] pr-[16.556px] lg:h-[179.08px] lg:flex-row lg:items-center lg:gap-0 lg:py-[32.556px] lg:pl-[32.556px] lg:pr-[64.556px]">
+              <li class="carta-vidro group flex flex-col justify-center gap-4 py-[24.556px] pl-[24.556px] pr-[16.556px] lg:h-[179.08px] lg:flex-row lg:items-center lg:gap-0 lg:py-[32.556px] lg:pl-[32.556px] lg:pr-[64.556px]">
                 <div class="flex w-full items-center gap-4 lg:items-start lg:gap-5">
-                  <span class="grid size-[51.997px] shrink-0 place-items-center rounded-2xl bg-aqua/12">
+                  <span class="caixa-icone grid size-[51.997px] shrink-0 place-items-center rounded-2xl bg-aqua/12">
                     <img src={req.icone} alt="" width="26" height="26" class="size-[25.998px]" />
                   </span>
                   <div class="min-w-0 flex-1">
@@ -121,6 +121,18 @@ const REQUISITOS = [
     transform: translateY(-4px);
     border-color: rgb(35 231 255 / 0.4);
     background: rgb(255 255 255 / 0.08);
+  }
+
+  /* No projeto React a caixa do ícone inverte no hover do card:
+     fundo aqua cheio e o ícone em night. */
+  .caixa-icone {
+    transition: background 300ms ease;
+  }
+  .carta-vidro:hover .caixa-icone {
+    background: var(--color-aqua);
+  }
+  .carta-vidro:hover .caixa-icone img {
+    filter: brightness(0) saturate(100%) invert(13%) sepia(28%) saturate(2200%) hue-rotate(199deg) brightness(95%) contrast(95%);
   }
 </style>
 

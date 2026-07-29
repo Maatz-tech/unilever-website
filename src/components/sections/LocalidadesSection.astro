@@ -71,6 +71,7 @@ const inicial = localidades[0];
         data-reveal
       >
         <p class="rotulo">Estado selecionado</p>
+        <div data-uf-bloco>
         <h3 data-uf-nome class="pt-[10px] text-[24px] font-bold leading-[1.5] text-night lg:text-[32px]">
           {inicial.nome}
         </h3>
@@ -86,9 +87,11 @@ const inicial = localidades[0];
           }
         </ul>
 
-        <a href="#inscricao" class="mt-6 inline-flex items-center gap-2 text-[20px] font-bold text-sky">
+        </div>
+
+        <a href="#inscricao" class="link-areas mt-6 inline-flex items-center gap-2 text-[20px] font-bold text-sky">
           Confira as áreas
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="seta-areas size-5" aria-hidden="true">
             <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </a>
@@ -177,8 +180,27 @@ const inicial = localidades[0];
     font-size: 14px;
     line-height: 20.25px;
     cursor: pointer;
-    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease, transform 150ms ease;
   }
+  /* group-hover:translate-x-1 e hover:text-sky do LocationsMap.jsx */
+  .link-areas {
+    transition: color 300ms ease;
+  }
+  .link-areas:hover {
+    color: var(--color-sky-dark);
+  }
+  .seta-areas {
+    transition: transform 300ms ease;
+  }
+  .link-areas:hover .seta-areas {
+    transform: translateX(4px);
+  }
+
+  /* whileTap={{scale:0.95}} */
+  .chip:active {
+    transform: scale(0.95);
+  }
+
   .chip:hover:not([aria-pressed='true']) {
     border-color: var(--color-sky);
     background: var(--color-sky-pale);
@@ -200,7 +222,7 @@ const inicial = localidades[0];
 
 <script>
   import { localidades } from '../../data/localidades.js';
-  import { revealOnScroll } from '../../lib/motion';
+  import { revealOnScroll, prefersReducedMotion } from '../../lib/motion';
 
   revealOnScroll('#localidades [data-reveal]');
 
@@ -210,6 +232,7 @@ const inicial = localidades[0];
     const cidades = secao.querySelector<HTMLElement>('[data-uf-cidades]')!;
     const paths = Array.from(secao.querySelectorAll<SVGPathElement>('[data-uf]'));
     const chips = Array.from(secao.querySelectorAll<HTMLButtonElement>('[data-chip]'));
+    const bloco = secao.querySelector<HTMLElement>('[data-uf-bloco]');
 
     const selecionar = (uf: string) => {
       const l = localidades.find((x: { uf: string }) => x.uf === uf);
@@ -225,6 +248,17 @@ const inicial = localidades[0];
 
       for (const p of paths) p.setAttribute('aria-pressed', String(p.dataset.uf === uf));
       for (const c of chips) c.setAttribute('aria-pressed', String(c.dataset.chip === uf));
+
+      // LocationsMap.jsx: o bloco do estado entra com y 12 e blur 6px (0.3s)
+      if (bloco && !prefersReducedMotion()) {
+        import('motion').then(({ animate }) =>
+          animate(
+            bloco,
+            { opacity: [0, 1], y: [12, 0], filter: ['blur(6px)', 'blur(0px)'] },
+            { duration: 0.3, ease: [0, 0, 0.58, 1] }
+          )
+        );
+      }
     };
 
     for (const p of paths) {

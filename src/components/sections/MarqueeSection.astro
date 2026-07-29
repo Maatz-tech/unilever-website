@@ -37,6 +37,11 @@ const FAIXA = Array.from({ length: 8 }, (_, i) => ITENS[i % 2]);
     animation: correr 40s linear infinite;
   }
 
+  /* hover:[animation-play-state:paused] do MarqueeStrip.jsx */
+  .marquee-texto:hover {
+    animation-play-state: paused;
+  }
+
   @keyframes correr {
     from {
       transform: translateX(0);

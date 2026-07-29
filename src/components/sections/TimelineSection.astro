@@ -74,7 +74,7 @@ const COR = {
                   <img src={`${import.meta.env.BASE_URL}images/timeline/${fase.icone}.svg`} alt="" width="32" height="32" class="size-8" />
                 </span>
 
-                <article class="carta-fase flex-1 rounded-2xl border-[0.556px] border-black/10 bg-cloud p-[20.556px] lg:p-[24.556px]">
+                <article data-fase-card class="carta-fase flex-1 rounded-2xl border-[0.556px] border-black/10 bg-cloud p-[20.556px] lg:p-[24.556px]">
                   <div class="flex items-center justify-between gap-3">
                     <h3 class:list={['text-[20px] font-bold leading-[1.2] lg:text-[24px]', COR[fase.cor].texto]}>
                       {fase.titulo}
@@ -118,9 +118,11 @@ const COR = {
 </style>
 
 <script>
-  import { revealOnScroll, prefersReducedMotion } from '../../lib/motion';
+  import { revealOnScroll, revealFromX, prefersReducedMotion } from '../../lib/motion';
 
   revealOnScroll('#jornada [data-reveal]');
+  // Timeline.jsx: cada card entra da direita com blur (0.5s, delay 0.1)
+  revealFromX('#jornada [data-fase-card]', 32, 0, 0.5);
 
   const trilha = document.querySelector<HTMLElement>('#trilha');
   const progresso = document.querySelector<HTMLElement>('[data-trilha-progresso]');

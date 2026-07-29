@@ -267,17 +267,32 @@
 .js [data-hero-in],
 .js [data-hero-badge],
 .js [data-reveal],
+.js [data-ben-foto],
+.js [data-ben-pilar],
 .js [data-reveal-stagger] > *,
+.js #sobre-paragrafos > *,
+.js [data-fase-card],
 .js [data-reveal-words] > [data-palavra] {
   opacity: 0;
   will-change: opacity, transform, filter;
+}
+
+/* divisores que se desenham começam recolhidos */
+.js [data-ben-linha] {
+  transform: scaleX(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .js [data-hero-in],
   .js [data-hero-badge],
   .js [data-reveal],
+  .js [data-ben-foto],
+  .js [data-ben-pilar],
   .js [data-reveal-stagger] > *,
+  .js #sobre-paragrafos > *,
+  .js [data-fase-card],
+.js #sobre-paragrafos > *,
+.js [data-fase-card],
   .js [data-reveal-words] > [data-palavra] {
     opacity: 1;
   }

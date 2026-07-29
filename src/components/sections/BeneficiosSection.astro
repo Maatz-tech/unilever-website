@@ -34,7 +34,7 @@ import { INSCRICAO_URL } from '../../data/site';
 
       <figure
         class="relative h-[406.277px] w-full max-w-[400px] shrink-0 overflow-hidden rounded-[19.404px] bg-[#f5f7f9] lg:h-auto lg:max-w-[660px] lg:flex-1 lg:self-stretch lg:rounded-[32px]"
-        data-reveal
+        data-ben-foto
       >
         <img
           src={`${import.meta.env.BASE_URL}images/cards/beneficios-foto.webp`}
@@ -56,10 +56,10 @@ import { INSCRICAO_URL } from '../../data/site';
           <span class="text-aqua">A Unilever</span> joga<br />junto com você
         </h2>
 
-        <ul id="ben-pilares" data-reveal-stagger class="flex flex-col gap-6">
+        <ul id="ben-pilares" class="flex flex-col gap-6">
           {
             PILARES.map((pilar, i) => (
-              <li>
+              <li data-ben-pilar>
                 {/* grid resolve os dois layouts sem repetir o título:
                     mobile  → [ícone | título] e o texto abaixo, ocupando as 2 colunas
                     desktop → [ícone | título] e o texto abaixo, só na 2ª coluna */}
@@ -73,7 +73,11 @@ import { INSCRICAO_URL } from '../../data/site';
                   </p>
                 </div>
                 {i < PILARES.length - 1 && (
-                  <div class="mt-6 h-px w-full bg-aqua/50 lg:bg-sky-mid/50" aria-hidden="true" />
+                  <div
+                  data-ben-linha
+                  class="mt-6 h-px w-full origin-left bg-aqua/50 lg:bg-sky-mid/50"
+                  aria-hidden="true"
+                />
                 )}
               </li>
             ))
@@ -132,9 +136,13 @@ import { INSCRICAO_URL } from '../../data/site';
 </style>
 
 <script>
-  import { revealOnScroll, revealStagger } from '../../lib/motion';
+  import { revealOnScroll, revealStagger, revealFromX, drawLine } from '../../lib/motion';
 
   revealOnScroll('#beneficios [data-reveal]');
-  revealStagger('#ben-pilares');
-  revealStagger('#ben-pills', 0.05);
+  // valores do Benefits.jsx: foto vem da esquerda, pilares da direita com
+  // delay i*0.18 e cada divisor se desenha em i*0.18+0.25
+  revealFromX('#beneficios [data-ben-foto]', -40, 0, 0.7);
+  revealFromX('#beneficios [data-ben-pilar]', 32, 0.18, 0.55);
+  drawLine('#beneficios [data-ben-linha]', 0.18, 0.25);
+  revealStagger('#ben-pills', 0.08);
 </script>

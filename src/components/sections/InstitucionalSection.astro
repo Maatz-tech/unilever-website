@@ -110,8 +110,9 @@ const primeiro = INSTITUCIONAL[0];
     background: var(--color-cloud);
     transition: opacity 200ms ease, transform 150ms ease;
   }
+  /* hover:-translate-y-0.5 do UnileverCarousel.jsx */
   .seta:hover {
-    transform: scale(1.06);
+    transform: translateY(-2px);
   }
   /* whileTap do legado */
   .seta:active {
@@ -122,8 +123,10 @@ const primeiro = INSTITUCIONAL[0];
     opacity: 0.2;
     cursor: default;
   }
+  /* a inativa não se move, mas clareia (hover:opacity-100 do legado) */
   .seta[data-inativa]:hover {
     transform: none;
+    opacity: 0.35;
   }
 </style>
 
