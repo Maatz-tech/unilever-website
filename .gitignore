@@ -31,3 +31,6 @@ docs/local/
 
 # referências do Figma são pesadas; baixar sob demanda pelos nodes no PROJECT.md
 docs/reference/*.png
+
+# macOS dentro de public
+public/.DS_Store

@@ -1,4 +1,6 @@
+# Site em pré-lançamento — bloqueado para buscadores.
+# Ao publicar oficialmente: trocar por "Allow: /" e reativar a linha Sitemap.
 User-agent: *
-Allow: /
+Disallow: /
 
-Sitemap: https://exemplo.com.br/sitemap-index.xml
+# Sitemap: https://exemplo.com.br/sitemap-index.xml

@@ -14,7 +14,8 @@ import { STORIES } from '../../data/stories';
  * A borda do anel fica por FORA da caixa de layout (por isso `ring`, não
  * `border`): é o que faz a altura fechar em 261.876px, igual ao Figma.
  *
- * O marquee é CSS puro — não gasta JS e não trava a rolagem. O visualizador
+ * A faixa não rola sozinha: o usuário arrasta (touch nativo + Pointer
+ * Events no desktop). O visualizador
  * usa <dialog> nativo, que já entrega foco preso, ESC e backdrop de graça;
  * o Framer Motion entra só nas transições.
  */
@@ -22,41 +23,37 @@ import { STORIES } from '../../data/stories';
 ---
 
 <section class="overflow-hidden bg-cloud py-6 lg:py-14" aria-label="Depoimentos de estagiários">
-  <div class="marquee-mask">
-    <div class="marquee flex w-max">
+  <div class="faixa-stories" data-faixa>
+    <ul class="flex w-max gap-4 lg:gap-8">
       {
-        [0, 1].map((copia) => (
-          <ul class="flex shrink-0 gap-4 pr-4 lg:gap-8 lg:pr-8" aria-hidden={copia === 1 ? 'true' : undefined}>
-            {STORIES.map((story, i) => (
-              <li>
-                <button
-                  type="button"
-                  class="story-btn group flex w-[78px] flex-col items-center gap-[6.292px] py-[6.292px] lg:w-[110px]"
-                  data-story={i}
-                  tabindex={copia === 1 ? -1 : undefined}
-                >
-                  <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
-                    <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
-                      <img
-                        src={story.foto.replace('.webp', '-mini.webp')}
-                        alt=""
-                        width="91"
-                        height="91"
-                        loading="lazy"
-                        class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
-                      />
-                    </span>
-                  </span>
-                  <span class="w-full truncate px-[4.8px] text-center text-[10.5px] leading-[1.5] text-ink lg:text-[14px]">
-                    {story.nome}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+        STORIES.map((story, i) => (
+          <li>
+            <button
+              type="button"
+              class="story-btn group flex w-[78px] flex-col items-center gap-[6.292px] py-[6.292px] lg:w-[110px]"
+              data-story={i}
+            >
+              <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
+                <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
+                  <img
+                    src={story.foto.replace('.webp', '-mini.webp')}
+                    alt=""
+                    width="91"
+                    height="91"
+                    loading="lazy"
+                    draggable="false"
+                    class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
+                  />
+                </span>
+              </span>
+              <span class="w-full truncate px-[4.8px] text-center text-[10.5px] leading-[1.5] text-ink lg:text-[14px]">
+                {story.nome}
+              </span>
+            </button>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </section>
 
@@ -137,39 +134,24 @@ import { STORIES } from '../../data/stories';
 </dialog>
 
 <style>
-  /* --- marquee -------------------------------------------------------
-     Sem máscara de fade nas laterais: isso vinha do projeto React, o Figma
-     mostra a faixa cortada reta pela borda da seção. */
-  .marquee {
-    animation: marquee 60s linear infinite;
+  /* --- faixa arrastável -----------------------------------------------
+     Sem rolagem automática: quem controla é o usuário. No touch usa a
+     rolagem nativa; no desktop o arraste é feito por Pointer Events (ver
+     script), porque mouse não gera scroll nativo. */
+  .faixa-stories {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    cursor: grab;
+    -webkit-overflow-scrolling: touch;
   }
-
-  /* Pausa em hover, foco de teclado e toque. Sem a pausa no toque, o alvo
-     foge do dedo no celular — onde não existe hover pra segurar a faixa. */
-  .marquee-mask:hover .marquee,
-  .marquee:focus-within,
-  .marquee-mask[data-pausado] .marquee {
-    animation-play-state: paused;
+  .faixa-stories::-webkit-scrollbar {
+    display: none;
   }
-
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      /* -50% exato: cada grupo carrega o próprio gap final (pr-4/pr-8), então
-         a segunda cópia assume a posição da primeira sem salto */
-      transform: translateX(-50%);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .marquee {
-      animation: none;
-    }
-    .marquee-mask {
-      overflow-x: auto;
-    }
+  .faixa-stories[data-arrastando] {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
   }
 
   /* Anel gradiente (faixa e avatar do card). O código exportado do Figma diz
@@ -401,15 +383,50 @@ import { STORIES } from '../../data/stories';
       if (e.key === 'ArrowLeft') navegar(-1);
     });
 
-    // no toque não há hover: segura a faixa enquanto o dedo está nela
-    const faixa = document.querySelector<HTMLElement>('.marquee-mask');
+    // ── arraste da faixa (o mouse não gera scroll nativo) ──────────────
+    const faixa = document.querySelector<HTMLElement>('[data-faixa]');
     if (faixa) {
-      const segurar = () => faixa.setAttribute('data-pausado', '');
-      const soltar = () => faixa.removeAttribute('data-pausado');
-      faixa.addEventListener('touchstart', segurar, { passive: true });
-      faixa.addEventListener('touchend', soltar, { passive: true });
-      faixa.addEventListener('touchcancel', soltar, { passive: true });
-      dialog.addEventListener('close', soltar);
+      let inicioX = 0;
+      let inicioScroll = 0;
+      let arrastando = false;
+      let percorrido = 0;
+
+      faixa.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return; // touch usa a rolagem nativa
+        arrastando = true;
+        percorrido = 0;
+        inicioX = e.clientX;
+        inicioScroll = faixa.scrollLeft;
+        faixa.setAttribute('data-arrastando', '');
+      });
+
+      faixa.addEventListener('pointermove', (e) => {
+        if (!arrastando) return;
+        const dx = e.clientX - inicioX;
+        percorrido = Math.max(percorrido, Math.abs(dx));
+        faixa.scrollLeft = inicioScroll - dx;
+      });
+
+      const soltarFaixa = () => {
+        if (!arrastando) return;
+        arrastando = false;
+        faixa.removeAttribute('data-arrastando');
+      };
+      faixa.addEventListener('pointerup', soltarFaixa);
+      faixa.addEventListener('pointerleave', soltarFaixa);
+      faixa.addEventListener('pointercancel', soltarFaixa);
+
+      // arrastar não deve abrir o story: cancela o clique se houve deslocamento
+      faixa.addEventListener(
+        'click',
+        (e) => {
+          if (percorrido > 8) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+        true
+      );
     }
   }
 </script>

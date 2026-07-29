@@ -29,15 +29,18 @@ const COR = {
 ---
 
 <section id="jornada" class="relative overflow-hidden bg-earth py-[72px] lg:py-[120px]">
-  <!-- traço decorativo de fundo -->
-  <img
-    src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
-    alt=""
-    aria-hidden="true"
-    class="pointer-events-none absolute -left-[45px] top-[330px] hidden w-[634px] -rotate-[88.81deg] lg:block"
-  />
-
   <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">
+    <!-- Traço decorativo. Fica ancorado ao CONTAINER, não à seção: no Figma ele
+         está a -45px da borda da tela de 1440, o que equivale a -157px da borda
+         do container de 1216. Ancorado na seção, ele fugia para a esquerda em
+         telas largas. -->
+    <img
+      src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
+      alt=""
+      aria-hidden="true"
+      class="pointer-events-none absolute -left-[157px] top-[258px] hidden w-[634px] -rotate-[88.81deg] lg:block"
+    />
+
     <div class="flex w-full flex-col justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
       <header class="flex flex-col gap-2 text-center lg:text-left" data-reveal>
         <h2 class="text-[32px] font-bold leading-[1.2] text-sky lg:text-[48px]">As fases do game</h2>

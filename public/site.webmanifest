@@ -1,0 +1,20 @@
+{
+  "name": "Programa de Estágio Unilever 2027",
+  "short_name": "Estágio Unilever",
+  "description": "Inscrições abertas para o Programa de Estágio Unilever 2027. Bora elevar o game?",
+  "lang": "pt-BR",
+  "start_url": "/unilever-website/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "icons": [
+    { "src": "/unilever-website/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/unilever-website/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/unilever-website/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
