@@ -29,15 +29,16 @@ const COR = {
 ---
 
 <section id="jornada" class="relative overflow-hidden bg-earth py-[72px] lg:py-[120px]">
-  <!-- Traço decorativo: nasce na BORDA DA TELA e termina mais à direita do que
-       a largura natural da forma, então estica com a viewport. O SVG já vem
-       pré-rotacionado (ver tl-shape.svg), por isso não há transform aqui e o
-       `preserveAspectRatio="none"` deixa ele acompanhar a caixa. -->
+  <!-- Traço decorativo. Tamanho NATURAL, sem esticar: a distorção anterior vinha
+       de escalar o SVG. Em vez disso o próprio arquivo já traz as retas 1400px
+       mais longas (só as retas; as curvas são as do Figma) e vem pré-rotacionado.
+       Ancorado pela DIREITA, o excesso das retas sai pela borda da tela. -->
   <img
     src={`${import.meta.env.BASE_URL}images/timeline/tl-shape.svg`}
     alt=""
     aria-hidden="true"
-    class="pointer-events-none absolute left-0 top-[258px] hidden h-[602px] w-[calc(50%-60px)] min-w-[634px] lg:block"
+    class="pointer-events-none absolute top-[228px] hidden h-[632px] w-[2033px] max-w-none lg:block"
+    style="right: calc(50% + 60px)"
   />
 
   <div class="container-lp relative flex flex-col items-center gap-8 px-6 lg:gap-16 lg:px-3">

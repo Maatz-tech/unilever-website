@@ -1,7 +1,8 @@
-<svg preserveAspectRatio="none" width="633.57" height="602.13" viewBox="0 0 633.57 602.13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<!-- Mesmo path do Figma, apenas pré-rotacionado -88.81 graus: assim o CSS
-     não precisa de transform e a forma pode ser esticada livremente. -->
-<g transform="translate(22.11 -9.67) rotate(-88.81 294.6755 310.7350)">
-<path id="Exclude" d="M242.621 3.41992V325.918C242.621 354.359 265.677 377.415 294.118 377.415C322.559 377.415 345.615 354.359 345.615 325.918V3.41992H587.351V329.259C587.35 489.516 454.976 619.47 294.675 619.47C134.374 619.469 2.00015 489.516 2 329.259V3.41992H242.621Z" stroke="#0066CC" stroke-width="4"/>
-</g>
+<svg width="2033.02" height="632.39" viewBox="-1422.35 -21.33 2033.02 632.39" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Traço da timeline. Mesmo path do Figma, com DUAS mudanças:
+     1. as retas da extremidade aberta foram alongadas em 1400px (só as
+        retas — as curvas seguem idênticas);
+     2. já vem rotacionado -88.81 graus, para o CSS não precisar de
+        transform nem de esticar (o que distorcia as curvas). -->
+<path d="M-1413.352 327.321L308.774 363.094C337.209 363.684 360.739 341.112 361.330 312.677C361.920 284.242 339.348 260.712 310.913 260.122L-1411.213 224.349L-1406.193 -17.335L319.274 18.507C479.496 21.837 606.673 156.881 603.344 317.147C600.014 477.414 467.340 607.060 307.117 603.732L-1418.350 567.890L-1413.352 327.321Z" stroke="#0066CC" stroke-width="4" />
 </svg>
