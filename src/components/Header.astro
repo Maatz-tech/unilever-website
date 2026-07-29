@@ -4,14 +4,14 @@ import { NAV_LINKS, INSCRICAO_URL } from '../data/site';
 ---
 
 <header id="topo" class="cabecalho">
-  <div class="container-lp flex h-[94px] items-center justify-between px-6 lg:px-3">
+  <div class="container-lp flex h-[64px] items-center justify-between px-6 lg:h-[94px] lg:px-3">
     <a href="/" class="shrink-0 transition-opacity hover:opacity-80" aria-label="Unilever — página inicial">
       <img
         src={`${import.meta.env.BASE_URL}images/brand/unilever.webp`}
         alt="Unilever"
         width="165"
         height="36"
-        class="h-9 w-auto"
+        class="h-[26px] w-auto lg:h-9"
         fetchpriority="high"
       />
     </a>
@@ -31,7 +31,7 @@ import { NAV_LINKS, INSCRICAO_URL } from '../data/site';
       </ul>
     </nav>
 
-    <Button href={INSCRICAO_URL} size="sm" class="shrink-0">Inscreva-se</Button>
+    <Button href={INSCRICAO_URL} size="sm" class="btn-compacto shrink-0">Inscreva-se</Button>
   </div>
 </header>
 

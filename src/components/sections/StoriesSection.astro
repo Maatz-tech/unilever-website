@@ -71,13 +71,13 @@ import { STORIES } from '../../data/stories';
       </svg>
     </button>
 
-    <button type="button" data-story-prev class="story-nav absolute left-4 lg:left-8" aria-label="Anterior">
+    <button type="button" data-story-prev class="story-nav story-nav-lado absolute left-4 lg:left-8" aria-label="Anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
         <path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </button>
 
-    <button type="button" data-story-next class="story-nav absolute right-4 lg:right-8" aria-label="Próximo">
+    <button type="button" data-story-next class="story-nav story-nav-lado absolute right-4 lg:right-8" aria-label="Próximo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
         <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
@@ -226,6 +226,14 @@ import { STORIES } from '../../data/stories';
     color: var(--color-cloud);
     transition: background 180ms ease;
   }
+  /* No mobile a navegação é por toque (as zonas laterais do card), então as
+     setas não aparecem — só o fechar. */
+  @media (max-width: 1023px) {
+    .story-nav-lado {
+      display: none;
+    }
+  }
+
   .story-nav:hover {
     background: rgb(255 255 255 / 0.24);
   }
@@ -366,9 +374,15 @@ import { STORIES } from '../../data/stories';
       animarEntrada(true);
     };
 
-    for (const btn of document.querySelectorAll<HTMLElement>('[data-story]')) {
-      btn.addEventListener('click', () => abrir(Number(btn.dataset.story)));
-    }
+    /**
+     * Delegação, não um ouvinte por botão: a faixa clona cópias da lista no
+     * cliente para o loop nunca deixar vão, e `cloneNode` NÃO copia ouvintes —
+     * clicar num avatar clonado não fazia nada.
+     */
+    document.addEventListener('click', (e) => {
+      const alvo = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-story]');
+      if (alvo) abrir(Number(alvo.dataset.story));
+    });
 
     dialog.querySelector('[data-story-close]')?.addEventListener('click', () => dialog.close());
     for (const sel of ['[data-story-prev]', '[data-story-prev-zona]']) {
@@ -396,19 +410,38 @@ import { STORIES } from '../../data/stories';
     const mascara = document.querySelector<HTMLElement>('.faixa-mascara');
 
     if (faixa && mascara) {
-      const VOLTA = 60; // segundos para percorrer uma cópia inteira
+      const VELOCIDADE = 38; // px por segundo
       let offset = 0;
-      let metade = faixa.scrollWidth / 2;
+      let unidade = 0; // largura de UMA cópia da lista
       let pausado = false;
       let arrastando = false;
       let inicioX = 0;
       let offsetInicial = 0;
       let percorrido = 0;
 
-      const medir = () => {
-        metade = faixa.scrollWidth / 2;
+      /**
+       * A faixa precisa ter, além do que está à vista, uma cópia inteira de
+       * folga — senão sobra vão de um lado quando a tela é mais larga que a
+       * lista. Duas cópias vêm do HTML; as demais são clonadas aqui, já que só
+       * no cliente sabemos a largura da tela.
+       */
+      const garantirCopias = () => {
+        const primeira = faixa.firstElementChild as HTMLElement | null;
+        if (!primeira) return;
+        unidade = primeira.getBoundingClientRect().width;
+        if (!unidade) return;
+        const preciso = mascara.clientWidth + unidade * 2;
+        let guarda = 0;
+        while (faixa.scrollWidth < preciso && guarda++ < 12) {
+          const clone = primeira.cloneNode(true) as HTMLElement;
+          clone.setAttribute('aria-hidden', 'true');
+          for (const b of clone.querySelectorAll('button')) b.tabIndex = -1;
+          faixa.appendChild(clone);
+        }
       };
-      new ResizeObserver(medir).observe(faixa);
+
+      garantirCopias();
+      new ResizeObserver(garantirCopias).observe(mascara);
 
       const aplicar = () => {
         faixa.style.transform = `translateX(${offset}px)`;
@@ -418,11 +451,11 @@ import { STORIES } from '../../data/stories';
       if (!prefersReducedMotion()) {
         let anterior = performance.now();
         const passo = (agora: number) => {
-          const dt = (agora - anterior) / 1000;
+          const dt = Math.min((agora - anterior) / 1000, 0.05);
           anterior = agora;
-          if (!pausado && !arrastando && metade > 0) {
-            offset -= (metade / VOLTA) * dt;
-            if (offset <= -metade) offset += metade; // volta ao início sem salto
+          if (!pausado && !arrastando && unidade > 0) {
+            offset -= VELOCIDADE * dt;
+            if (offset <= -unidade) offset += unidade; // volta ao início sem salto
             aplicar();
           }
           requestAnimationFrame(passo);
@@ -435,24 +468,31 @@ import { STORIES } from '../../data/stories';
       faixa.addEventListener('focusin', () => (pausado = true));
       faixa.addEventListener('focusout', () => (pausado = false));
 
+      /**
+       * NÃO usar setPointerCapture aqui: com a captura na faixa, o `pointerup`
+       * passa a ter a faixa como alvo e o navegador dispara o `click` no
+       * ancestral comum — a própria faixa — em vez do botão do avatar. Era
+       * exatamente por isso que clicar não abria mais o depoimento. Os móveis
+       * ficam na janela, que cobre o arraste saindo do elemento do mesmo jeito.
+       */
       faixa.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         arrastando = true;
         percorrido = 0;
         inicioX = e.clientX;
         offsetInicial = offset;
         faixa.setAttribute('data-arrastando', '');
-        faixa.setPointerCapture(e.pointerId);
       });
 
-      faixa.addEventListener('pointermove', (e) => {
+      window.addEventListener('pointermove', (e) => {
         if (!arrastando) return;
         const dx = e.clientX - inicioX;
         percorrido = Math.max(percorrido, Math.abs(dx));
         offset = offsetInicial + dx;
         // mantém dentro de uma cópia para o loop seguir infinito
-        if (metade > 0) {
-          while (offset <= -metade) offset += metade;
-          while (offset > 0) offset -= metade;
+        if (unidade > 0) {
+          while (offset <= -unidade) offset += unidade;
+          while (offset > 0) offset -= unidade;
         }
         aplicar();
       });
@@ -462,8 +502,8 @@ import { STORIES } from '../../data/stories';
         arrastando = false;
         faixa.removeAttribute('data-arrastando');
       };
-      faixa.addEventListener('pointerup', soltarFaixa);
-      faixa.addEventListener('pointercancel', soltarFaixa);
+      window.addEventListener('pointerup', soltarFaixa);
+      window.addEventListener('pointercancel', soltarFaixa);
 
       // arrastar não deve abrir o story
       faixa.addEventListener(

@@ -218,6 +218,20 @@
     padding: 14px 24px 12px;
   }
 
+  /* Só no header do mobile: encolhe para o cabeçalho não comer a dobra.
+     Vem depois do .btn-sm para vencer no empate de especificidade. */
+  .btn-compacto {
+    font-size: 15px;
+    padding: 9px 16px 7px;
+  }
+
+  @media (min-width: 1024px) {
+    .btn-compacto {
+      font-size: 18px;
+      padding: 14px 24px 12px;
+    }
+  }
+
   /* usado no mobile (hero, sobre) — entre o sm e o lg */
   .btn-md {
     font-size: 20px;

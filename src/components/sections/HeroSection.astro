@@ -202,17 +202,17 @@ const M_PES = { w: 370, top: 253.68 };
     </div>
   </div>
 
-  <!-- Faixa de marcas do mobile: o pill azul em largura cheia, montando 36px
-       sobre a borda inferior do hero (Figma 4204:18889 — 390×77.6, y 730, hero
-       termina em 766). Mesma proporção do pill do desktop (342×68), logo é o
-       mesmo asset — não existe card branco em volta. -->
-  <div class="relative z-20 -mt-9 md:hidden">
+  <!-- Faixa de marcas do mobile. Figma 4204:19230: 342×68.081 em x=24, ou seja
+       24px de respiro de cada lado — não é largura cheia. O centro do pill fica
+       sobre a borda inferior do hero, daí o -mt de metade da altura. O asset é o
+       mesmo do desktop (mesma proporção), exportado a 4x. -->
+  <div class="relative z-20 -mt-[34.04px] md:hidden">
     <img
       src={`${import.meta.env.BASE_URL}images/hero/marca.webp`}
       alt="Dove, OMO, Hellmann's e Rexona"
-      width="390"
-      height="78"
-      class="block h-[77.64px] w-full"
+      width="1368"
+      height="273"
+      class="mx-6 block h-auto w-[calc(100%-48px)]"
       loading="eager"
     />
   </div>
@@ -337,7 +337,7 @@ const M_PES = { w: 370, top: 253.68 };
           data-hero-in="2"
           src={`${import.meta.env.BASE_URL}images/hero/marca.webp`}
           alt="Dove, OMO, Hellmann's e Rexona"
-          class="absolute top-[512.71em] h-[68.081em] w-[342em] -translate-x-1/2"
+          class="absolute top-[512.71em] h-auto w-[342em] -translate-x-1/2"
           style="left:calc(50% + 424.65em)"
           loading="eager"
         />
@@ -509,8 +509,9 @@ const M_PES = { w: 370, top: 253.68 };
     }
 
     for (const palco of palcos) {
-      palco.addEventListener('mouseenter', parar);
-      palco.addEventListener('mouseleave', iniciar);
+      // Sem pausa no mouse: o que muda entre slides é só a imagem — o texto e o
+      // CTA são os mesmos —, então parar ao passar o mouse não protege leitura
+      // nenhuma e só deixa o carrossel travado em quem usa mouse.
     }
     document.addEventListener('visibilitychange', () => (document.hidden ? parar() : iniciar()));
 

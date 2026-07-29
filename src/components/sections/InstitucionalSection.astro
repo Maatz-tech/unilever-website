@@ -7,16 +7,24 @@ import { INSTITUCIONAL } from '../../data/institucional';
  * Figma: 4188:12078 (desktop, 880px incluindo o divisor de 56px)
  *        4204:18917 (mobile, 873px)
  *
- * Os dois cards de trás são DECORATIVOS: no Figma são instâncias duplicadas
- * do mesmo componente, e só as bordas inferiores aparecem. Renderizar só as
- * cascas evita duplicar o conteúdo e o custo de imagem.
+ * Geometria do baralho, medida no Figma (largura · topo · altura):
+ *   desktop  frente 1192·0·520 · meio 1149·27.12·502 · fundo 1081·51.68·484.64
+ *   mobile   frente  342·0·657 · meio  325·41.68·624 · fundo  309·78.78·592.9
  *
- * Geometria do baralho (topo/largura), medida no Figma:
- *   desktop  frente 1192×520 · meio 1149 em y+27.12 · fundo 1081 em y+51.68
- *   mobile   frente  342×657 · meio  325 em y+41.68 · fundo  309 em y+78.78
+ * O BARALHO É FEITO DOS PRÓPRIOS SLIDES, não de cascas decorativas. Cada card
+ * recebe uma posição em função da distância até o slide atual:
+ *
+ *   já visto → saiu (sobe e desaparece)   ·   0 → frente
+ *   1 → meio   ·   2 → fundo   ·   3+ → escondido (no fundo, invisível)
+ *
+ * Isso dá três coisas de uma vez: (a) o stack encurta sozinho — no último slide
+ * não há nada atrás, porque não há mais slide para ficar atrás; (b) avançar tira
+ * o card por cima, de baixo para cima, e voltar traz o mesmo card de volta de
+ * cima para baixo, sem código de direção; (c) a virada é só `transform` e
+ * `opacity` com transição de CSS — nenhuma troca de conteúdo, nenhum reflow,
+ * nenhuma decodificação de imagem no meio do movimento. Era daí que vinha o
+ * tranco: antes havia um card só e a virada reescrevia texto e `src`.
  */
-
-const primeiro = INSTITUCIONAL[0];
 ---
 
 <!-- divisor de entrada: recorte em zigue-zague para o azul -->
@@ -30,51 +38,41 @@ const primeiro = INSTITUCIONAL[0];
 <section id="a-unilever" class="overflow-hidden bg-sky" aria-roledescription="carrossel" aria-label="A Unilever">
   <div class="container-lp flex flex-col gap-8 px-6 pb-[72px] pt-[72px] lg:gap-16 lg:px-3 lg:pb-20 lg:pt-[120px]">
     <!-- ── baralho ──────────────────────────────────────────────────── -->
-    <div class="relative h-[657px] lg:h-[520px]">
-      <!-- cascas decorativas, só as bordas de baixo aparecem -->
-      <div
-        data-inst-casca="2"
-        class="carta-fundo absolute left-[16.67px] top-[78.78px] h-[592.9px] w-[308.655px] rounded-[25.27px] lg:left-[3.31%] lg:top-[51.68px] lg:h-[484.64px] lg:w-[90.7%] lg:rounded-[26.096px]"
-        aria-hidden="true"
-      >
-      </div>
-      <div
-        data-inst-casca="1"
-        class="carta-fundo absolute left-[8.55px] top-[41.68px] h-[624.15px] w-[324.9px] rounded-[26.6px] lg:left-[1.805%] lg:top-[27.12px] lg:h-[502px] lg:w-[96.39%] lg:rounded-[27.02px]"
-        aria-hidden="true"
-      >
-      </div>
-
-      <!-- card ativo -->
-      <article
-        data-inst-card
-        class="carta-fundo absolute left-0 top-0 flex h-[657px] w-full flex-col overflow-hidden rounded-[28px] lg:h-[520px] lg:flex-row"
-      >
-        <!-- imagem: em cima no mobile, à direita no desktop -->
-        <div class="h-[296px] shrink-0 overflow-hidden lg:order-2 lg:h-full lg:w-1/2">
-          <img
-            data-inst-foto
-            src={primeiro.foto}
-            alt={primeiro.alt}
-            width="596"
-            height="518"
-            loading="lazy"
-            class="size-full object-cover"
-          />
-        </div>
-
-        <div
-          class="flex flex-1 flex-col justify-center gap-4 px-7 py-8 lg:order-1 lg:w-1/2 lg:gap-5 lg:px-14 lg:py-13"
-        >
-          <h3
-            data-inst-titulo
-            class="text-[24px] font-bold leading-[1.2] text-sky lg:text-[32px] lg:leading-[1.4]"
+    <!-- altura = card da frente; o fundo assoma para além dela, dentro do
+         padding da seção, exatamente como as cascas faziam antes -->
+    <div data-inst-baralho class="relative h-[657px] lg:h-[520px]">
+      {
+        INSTITUCIONAL.map((slide, i) => (
+          <article
+            data-inst-card={i}
+            data-pos={i === 0 ? 'frente' : i === 1 ? 'meio' : i === 2 ? 'fundo' : 'escondido'}
+            class="carta-slide absolute left-0 top-0 flex h-[657px] w-full flex-col overflow-hidden rounded-[28px] lg:h-[520px] lg:flex-row"
+            inert={i === 0 ? undefined : true}
           >
-            {primeiro.titulo}
-          </h3>
-          <p data-inst-corpo class="body max-w-[449px] lg:text-[18px]" set:html={primeiro.corpo} />
-        </div>
-      </article>
+            {/* imagem: em cima no mobile, à direita no desktop */}
+            <div class="h-[296px] shrink-0 overflow-hidden lg:order-2 lg:h-full lg:w-1/2">
+              <img
+                src={slide.foto}
+                alt={slide.alt}
+                width="1110"
+                height="1036"
+                loading="lazy"
+                draggable="false"
+                class="size-full object-cover"
+              />
+            </div>
+
+            <div
+              class="flex flex-1 flex-col justify-center gap-4 px-7 py-8 lg:order-1 lg:w-1/2 lg:gap-5 lg:px-14 lg:py-13"
+            >
+              <h3 class="text-[24px] font-bold leading-[1.2] text-sky lg:text-[32px] lg:leading-[1.4]">
+                {slide.titulo}
+              </h3>
+              <p class="body max-w-[449px] lg:text-[18px]" set:html={slide.corpo} />
+            </div>
+          </article>
+        ))
+      }
     </div>
 
     <!-- ── controles ────────────────────────────────────────────────── -->
@@ -95,10 +93,90 @@ const primeiro = INSTITUCIONAL[0];
 </section>
 
 <style>
-  .carta-fundo {
+  /* ── o baralho ───────────────────────────────────────────────────────
+     As posições são escala + deslocamento vertical com origem no TOPO, então o
+     que importa é onde a borda de baixo cai — é a única parte de meio e fundo
+     que aparece. Os valores saem do Figma:
+
+       mobile   meio  325/342 = 0.95    base em 665.83 → y 41.68
+                fundo 309/342 = 0.9025  base em 671.68 → y 78.78
+       desktop  meio 1149/1192 = 0.9639 base em 529.12 → y 27.90
+                fundo 1081/1192 = 0.9070 base em 536.32 → y 64.70   */
+  .carta-slide {
+    --s-meio: 0.95;
+    --y-meio: 41.68px;
+    --s-fundo: 0.9025;
+    --y-fundo: 78.78px;
+
+    transform-origin: top center;
     background: var(--color-cloud);
     border: 1px solid #e8eaf1;
     box-shadow: 0 24px 54px -30px rgb(19 32 51 / 0.35);
+    will-change: transform, opacity;
+    /* `linear()` é a mola do UnileverCarousel.jsx (spring 260 / 30 / mass 0.9)
+       amostrada: 373ms, praticamente sem overshoot. Como é transição de CSS, a
+       animação roda no compositor — não há trabalho de JS por quadro. */
+    transition:
+      transform 373ms
+        linear(0, 0.0409, 0.134, 0.2483, 0.3654, 0.4754, 0.5733, 0.6576, 0.7283, 0.7864, 0.8335, 0.8711, 0.9009, 0.9242, 0.9424, 0.9564, 0.9672, 0.9754, 0.9816, 0.9863, 1),
+      opacity 300ms ease;
+  }
+
+  @media (min-width: 1024px) {
+    .carta-slide {
+      --s-meio: 0.9639;
+      --y-meio: 27.9px;
+      --s-fundo: 0.907;
+      --y-fundo: 64.7px;
+    }
+  }
+
+  /* o que já passou sai por cima, subindo */
+  .carta-slide[data-pos='saiu'] {
+    transform: translateY(-64px) scale(1);
+    opacity: 0;
+    z-index: 5;
+  }
+
+  .carta-slide[data-pos='frente'] {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    z-index: 4;
+  }
+
+  .carta-slide[data-pos='meio'] {
+    transform: translateY(var(--y-meio)) scale(var(--s-meio));
+    opacity: 1;
+    z-index: 3;
+  }
+
+  .carta-slide[data-pos='fundo'] {
+    transform: translateY(var(--y-fundo)) scale(var(--s-fundo));
+    opacity: 1;
+    z-index: 2;
+  }
+
+  /* do quarto em diante: já no lugar do fundo, só invisível — assim entrar no
+     stack é só acender, sem salto de posição */
+  .carta-slide[data-pos='escondido'] {
+    transform: translateY(var(--y-fundo)) scale(var(--s-fundo));
+    opacity: 0;
+    z-index: 1;
+  }
+
+  /* durante o arraste o transform é inline; a transição sairia na frente */
+  .carta-slide[data-arrastando] {
+    transition: none;
+  }
+
+  .carta-slide[inert] {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carta-slide {
+      transition: opacity 1ms linear;
+    }
   }
 
   .seta {
@@ -132,103 +210,85 @@ const primeiro = INSTITUCIONAL[0];
 
 <script>
   import { INSTITUCIONAL } from '../../data/institucional';
-  import { prefersReducedMotion } from '../../lib/motion';
 
-  /**
-   * Valores da mola copiados do UnileverCarousel.jsx da versão React:
-   * spring stiffness 260, damping 30, mass 0.9 — e o arraste com
-   * dragElastic 0.22, que lá vinha de graça do Framer Motion e aqui é feito
-   * com Pointer Events.
-   *
-   * O baralho é empilhado na VERTICAL (as cascas aparecem embaixo), então a
-   * entrada do card vem de baixo pra cima — não lateralmente.
-   */
-  const MOLA = { type: 'spring', stiffness: 260, damping: 30, mass: 0.9 } as const;
+  /** px de arraste para trocar de slide, e a resistência nas pontas (dragElastic) */
+  const LIMIAR = 60;
   const ELASTICO = 0.22;
-  const LIMIAR = 60; // px de arraste para trocar de slide
 
-  const card = document.querySelector<HTMLElement>('[data-inst-card]');
-  if (card) {
-    const foto = card.querySelector<HTMLImageElement>('[data-inst-foto]')!;
-    const titulo = card.querySelector<HTMLElement>('[data-inst-titulo]')!;
-    const corpo = card.querySelector<HTMLElement>('[data-inst-corpo]')!;
+  const baralho = document.querySelector<HTMLElement>('[data-inst-baralho]');
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-inst-card]'));
+
+  if (baralho && cards.length) {
     const contador = document.querySelector<HTMLElement>('[data-inst-atual]')!;
     const prev = document.querySelector<HTMLButtonElement>('[data-inst-prev]')!;
     const next = document.querySelector<HTMLButtonElement>('[data-inst-next]')!;
-    const cascas = Array.from(document.querySelectorAll<HTMLElement>('[data-inst-casca]'));
 
     let atual = 0;
 
-    const pintar = (i: number) => {
-      const s = INSTITUCIONAL[i];
-      atual = i;
-      foto.src = s.foto;
-      foto.alt = s.alt;
-      titulo.textContent = s.titulo;
-      corpo.innerHTML = s.corpo;
-      contador.textContent = String(i + 1);
+    /** Uma função só: a posição de cada card é a distância até o atual. */
+    const posicionar = () => {
+      cards.forEach((card, i) => {
+        const d = i - atual;
+        card.dataset.pos = d < 0 ? 'saiu' : d === 0 ? 'frente' : d === 1 ? 'meio' : d === 2 ? 'fundo' : 'escondido';
+        card.toggleAttribute('inert', d !== 0);
+      });
+
+      contador.textContent = String(atual + 1);
       for (const [btn, inativo] of [
-        [prev, i === 0],
-        [next, i === INSTITUCIONAL.length - 1],
+        [prev, atual === 0],
+        [next, atual === INSTITUCIONAL.length - 1],
       ] as const) {
         btn.toggleAttribute('data-inativa', inativo);
         btn.disabled = inativo;
       }
     };
 
-    const ir = async (passo: number) => {
+    const ir = (passo: number) => {
       const alvo = atual + passo;
-      if (alvo < 0 || alvo >= INSTITUCIONAL.length) return;
-      pintar(alvo);
-      if (prefersReducedMotion()) return;
-      const { animate } = await import('motion');
-      // o card entra com mola, vindo do lado de onde veio o gesto
-      animate(card, { opacity: [0, 1], y: [passo > 0 ? 48 : -48, 0] }, MOLA);
-      // as cascas dão um "assentamento" atrás — é o baralho reagindo
-      cascas.forEach((casca, n) => {
-        animate(casca, { y: [8 * (n + 1), 0] }, { ...MOLA, delay: 0.04 * (n + 1) });
-      });
+      if (alvo < 0 || alvo >= cards.length) return;
+      atual = alvo;
+      posicionar();
     };
 
+    posicionar();
     prev.addEventListener('click', () => ir(-1));
     next.addEventListener('click', () => ir(1));
-    pintar(0);
 
     // ── arraste / swipe ────────────────────────────────────────────────
+    // Os móveis ficam na janela em vez de setPointerCapture: com a captura, o
+    // `click` passa a ser entregue ao elemento capturador e os controles param
+    // de responder (foi o que quebrou os stories).
     let inicioX = 0;
     let arrastando = false;
 
-    card.style.touchAction = 'pan-y';
+    baralho.style.touchAction = 'pan-y';
 
-    card.addEventListener('pointerdown', (e) => {
+    baralho.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       arrastando = true;
       inicioX = e.clientX;
-      card.setPointerCapture(e.pointerId);
+      cards[atual].setAttribute('data-arrastando', '');
     });
 
-    card.addEventListener('pointermove', (e) => {
+    window.addEventListener('pointermove', (e) => {
       if (!arrastando) return;
       const dx = e.clientX - inicioX;
-      // resistência nas pontas, igual ao dragElastic
-      const noLimite = (dx > 0 && atual === 0) || (dx < 0 && atual === INSTITUCIONAL.length - 1);
-      card.style.transform = `translateX(${noLimite ? dx * ELASTICO : dx}px)`;
+      const noLimite = (dx > 0 && atual === 0) || (dx < 0 && atual === cards.length - 1);
+      // o card da frente está em translateY(0) scale(1): só somamos o eixo X
+      cards[atual].style.transform = `translateX(${noLimite ? dx * ELASTICO : dx}px)`;
     });
 
-    const soltar = async (e: PointerEvent) => {
+    const soltar = (e: PointerEvent) => {
       if (!arrastando) return;
       arrastando = false;
       const dx = e.clientX - inicioX;
-      card.style.transform = '';
-      if (Math.abs(dx) > LIMIAR) {
-        ir(dx < 0 ? 1 : -1);
-      } else if (!prefersReducedMotion()) {
-        const { animate } = await import('motion');
-        animate(card, { x: [dx, 0] }, MOLA); // volta pro lugar
-      }
+      const card = cards[atual];
+      card.removeAttribute('data-arrastando');
+      card.style.transform = ''; // volta ao transform da posição, com transição
+      if (Math.abs(dx) > LIMIAR) ir(dx < 0 ? 1 : -1);
     };
 
-    card.addEventListener('pointerup', soltar);
-    card.addEventListener('pointercancel', soltar);
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
   }
 </script>
