@@ -58,7 +58,7 @@ const COR = {
         <div class="absolute bottom-7 left-[27px] top-7 w-0.5 rounded-full bg-night/12" aria-hidden="true"></div>
         <div
           data-trilha-progresso
-          class="absolute bottom-7 left-[27px] top-7 w-0.5 origin-top scale-y-0 rounded-full bg-gradient-to-b from-sky-dark via-sky to-sky-mid"
+          class="absolute bottom-7 left-[27px] top-7 w-0.5 origin-top rounded-full bg-gradient-to-b from-sky-dark via-sky to-sky-mid"
           aria-hidden="true"
         >
         </div>
@@ -121,8 +121,11 @@ const COR = {
   import { revealOnScroll, revealFromX, prefersReducedMotion } from '../../lib/motion';
 
   revealOnScroll('#jornada [data-reveal]');
-  // Timeline.jsx: cada card entra da direita com blur (0.5s, delay 0.1)
-  revealFromX('#jornada [data-fase-card]', 32, 0, 0.5);
+  // Timeline.jsx: cada card entra da direita com blur (0.5s, delay 0.1) e o
+  // viewport tem margin '-18% 0px' — é essa margem que faz as fases surgirem
+  // uma a uma conforme o scroll, e não todas de uma vez.
+  const VIEWPORT_FASE = { atraso: 0.1, margin: '-18% 0px', amount: 0.2 };
+  revealFromX('#jornada [data-fase-card]', 32, 0, 0.5, VIEWPORT_FASE);
 
   const trilha = document.querySelector<HTMLElement>('#trilha');
   const progresso = document.querySelector<HTMLElement>('[data-trilha-progresso]');
@@ -147,7 +150,7 @@ const COR = {
           (el) => {
             animate(el, { scale: [0, 1], opacity: [0, 1] }, { type: 'spring', stiffness: 350, damping: 20 });
           },
-          { amount: 0.6 }
+          { amount: 0.2, margin: VIEWPORT_FASE.margin }
         );
       }
     }

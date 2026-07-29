@@ -148,12 +148,19 @@ function mostrar(els: ArrayLike<HTMLElement>) {
  * Timeline no projeto React: `initial={{opacity:0, x:32, filter:'blur(8px)'}}`.
  * `passo` escalona os itens (0.18 em Benefícios, 0 na Timeline).
  */
-export async function revealFromX(selector: string, x = 32, passo = 0, duracao = 0.55) {
+export async function revealFromX(
+  selector: string,
+  x = 32,
+  passo = 0,
+  duracao = 0.55,
+  opts: { atraso?: number; margin?: string; amount?: number } = {}
+) {
   const alvos = document.querySelectorAll<HTMLElement>(selector);
   if (!alvos.length) return;
   if (prefersReducedMotion()) return mostrar(alvos);
 
   const { animate, inView } = await import('motion');
+  const { atraso = 0, margin, amount = 0.2 } = opts;
 
   Array.from(alvos).forEach((el, i) => {
     inView(
@@ -162,10 +169,13 @@ export async function revealFromX(selector: string, x = 32, passo = 0, duracao =
         animate(
           el,
           { opacity: [0, 1], x: [x, 0], filter: ['blur(8px)', 'blur(0px)'] },
-          { duration: duracao, delay: i * passo, ease: EASE }
+          { duration: duracao, delay: atraso + i * passo, ease: EASE }
         );
       },
-      { amount: 0.2 }
+      // `margin` encolhe a área de detecção (o `viewport.margin` do Framer). Numa
+      // lista vertical curta é o que faz os itens dispararem UM A UM no scroll,
+      // em vez de todos juntos quando a seção inteira aparece.
+      margin ? { amount, margin } : { amount }
     );
   });
 }

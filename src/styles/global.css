@@ -180,17 +180,23 @@
     line-height: 20px;
     border-radius: var(--radius-btn);
     white-space: nowrap;
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms ease;
+    /* `linear()` reproduz a mola do Button.jsx (spring stiffness 500, damping 30,
+       mass 1): 414ms com ~6% de overshoot. Sem isso o movimento fica seco. */
+    transition:
+      transform 414ms linear(0, 0.0624, 0.2073, 0.3846, 0.561, 0.7165, 0.8417, 0.9345, 0.9973, 1.035, 1.0535, 1.0583, 1.0545, 1.046, 1.0356, 1.0254, 1.0163, 1.0091, 1.0037, 1.0001, 0.9979, 0.9969, 0.9966, 0.9968, 1),
+      filter 200ms ease;
   }
 
   /* Hover e active do projeto React: sobe 2px no hover, afunda 4px no clique.
-     Sem troca de cor — o movimento é o feedback. */
+     Sem troca de cor nem de sombra no hover — o movimento é o feedback. A sombra
+     só muda no clique, para 0 2px 0 rgba(0,0,0,0.2) (whileTap do Button.jsx). */
   .btn:hover {
     transform: translateY(-2px);
   }
 
   .btn:active {
     transform: translateY(4px);
+    filter: drop-shadow(0 2px 0 rgb(0 0 0 / 0.2));
   }
 
   .btn-primary {
@@ -199,27 +205,11 @@
     filter: drop-shadow(0 6px 0 var(--color-sky-dark));
   }
 
-  .btn-primary:hover {
-    filter: drop-shadow(0 8px 0 var(--color-sky-dark));
-  }
-
-  .btn-primary:active {
-    filter: drop-shadow(0 2px 0 var(--color-sky-dark));
-  }
-
   /* Invertido — usado dentro das seções de fundo night */
   .btn-invert {
     background: var(--color-cloud);
     color: var(--color-sky);
     filter: drop-shadow(0 6px 0 var(--color-shade));
-  }
-
-  .btn-invert:hover {
-    filter: drop-shadow(0 8px 0 var(--color-shade));
-  }
-
-  .btn-invert:active {
-    filter: drop-shadow(0 2px 0 var(--color-shade));
   }
 
   /* Tamanhos — medidos no Figma */
@@ -277,9 +267,16 @@
   will-change: opacity, transform, filter;
 }
 
-/* divisores que se desenham começam recolhidos */
+/* divisores e trilhas que se desenham começam recolhidos.
+   NÃO usar `scale-y-0` do Tailwind aqui: ele escreve na propriedade `scale`, que
+   MULTIPLICA o `transform: scaleY()` que o Motion anima — o resultado fica
+   sempre zero e a linha nunca aparece. */
 .js [data-ben-linha] {
   transform: scaleX(0);
+}
+
+.js [data-trilha-progresso] {
+  transform: scaleY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

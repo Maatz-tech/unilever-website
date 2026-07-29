@@ -34,3 +34,6 @@ docs/reference/*.png
 
 # macOS dentro de public
 public/.DS_Store
+
+# fontes das imagens do hero, convertidas para webp em public/images/hero
+/pes-*.png

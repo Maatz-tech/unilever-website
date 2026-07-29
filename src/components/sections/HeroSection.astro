@@ -36,22 +36,22 @@ import { INSCRICAO_URL } from '../../data/site';
  */
 const SLIDES = [
   {
-    d: { bg: 'bg-1', pes: 'pes-1', left: 430.48, top: 77.76, w: 584.261, h: 809.493, blur: false },
+    d: { bg: 'bg-1', pes: 'pes-1', left: 430.48, top: 77.76, w: 584.5, h: 562.5, blur: false },
     m: { bg: 'bg-1-m', pes: 'pes-1-m', h: 512.635 },
     dim: 0,
   },
   {
-    d: { bg: 'bg-2', pes: 'pes-2', left: 355.65, top: 59.45, w: 639.184, h: 581, blur: true },
+    d: { bg: 'bg-2', pes: 'pes-2', left: 355.65, top: 59.45, w: 639.5, h: 581, blur: true },
     m: { bg: 'bg-2-m', pes: 'pes-2-m', h: 419 },
     dim: 0,
   },
   {
-    d: { bg: 'bg-3', pes: 'pes-3', left: 429.03, top: 63.98, w: 584.261, h: 809.493, blur: true },
+    d: { bg: 'bg-3', pes: 'pes-3', left: 429.03, top: 63.98, w: 584.5, h: 576.5, blur: true },
     m: { bg: 'bg-3-m', pes: 'pes-3-m', h: 512.635 },
     dim: 0.2,
   },
   {
-    d: { bg: 'bg-4', pes: 'pes-4', left: 335.78, top: 59.45, w: 584.261, h: 809.493, blur: true },
+    d: { bg: 'bg-4', pes: 'pes-4', left: 335.78, top: 59.45, w: 584.5, h: 581, blur: true },
     m: { bg: 'bg-4-m', pes: 'pes-4-m', h: 512.635 },
     dim: 0,
   },
@@ -169,13 +169,17 @@ const M_PES = { w: 370, top: 253.68 };
         </span>
       </p>
 
-      <a
-        href={INSCRICAO_URL}
-        data-hero-in="1"
-        class="btn btn-invert absolute left-1/2 top-[526em] -translate-x-1/2 rounded-[16em] px-[24em] pb-[14em] pt-[16em]"
-      >
-        <span class="text-[20em] leading-[1]">Inscreva-se agora!</span>
-      </a>
+      <!-- A cascata de entrada anima `y`, e o Motion deixa um transform INLINE no
+           elemento — que vence o `.btn:hover`. Por isso o data-hero-in mora no
+           invólucro: o transform do hover fica só do botão. -->
+      <div data-hero-in="1" class="absolute left-0 right-0 top-[526em] flex justify-center">
+        <a
+          href={INSCRICAO_URL}
+          class="btn btn-invert rounded-[16em] px-[24em] pb-[14em] pt-[16em]"
+        >
+          <span class="text-[20em] leading-[1]">Inscreva-se agora!</span>
+        </a>
+      </div>
 
       <!-- Navegação do carrossel. Não existe no Figma: adicionada para dar
            controle manual ao usuário, alinhada ao CTA no desktop e abaixo dele
@@ -259,13 +263,14 @@ const M_PES = { w: 370, top: 253.68 };
               fetchpriority="high"
             />
 
-            <a
-              href={INSCRICAO_URL}
-              data-hero-in="1"
-              class="btn btn-invert absolute left-[78.38em] top-[330.72em] rounded-[16em] px-[32em] pb-[22em] pt-[24em]"
-            >
-              <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>
-            </a>
+            <div data-hero-in="1" class="absolute left-[78.38em] top-[330.72em]">
+              <a
+                href={INSCRICAO_URL}
+                class="btn btn-invert rounded-[16em] px-[32em] pb-[22em] pt-[24em]"
+              >
+                <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>
+              </a>
+            </div>
 
           </div>
 
@@ -508,5 +513,50 @@ const M_PES = { w: 370, top: 253.68 };
       palco.addEventListener('mouseleave', iniciar);
     }
     document.addEventListener('visibilitychange', () => (document.hidden ? parar() : iniciar()));
+
+    // ── swipe / arraste ────────────────────────────────────────────────
+    // Vale no touch e no desktop. `touch-action: pan-y` deixa a rolagem
+    // vertical passar: só o gesto horizontal troca de slide.
+    const LIMIAR = 60;
+
+    for (const palco of palcos) {
+      let inicioX = 0;
+      let inicioY = 0;
+      let ativo = false;
+
+      palco.style.touchAction = 'pan-y';
+      // afordância de arraste: mãozinha aberta em repouso, fechada durante o gesto.
+      // Botões e links dentro do palco mantêm o `pointer` da folha do navegador.
+      palco.style.cursor = 'grab';
+
+      palco.addEventListener(
+        'pointerdown',
+        (e) => {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          ativo = true;
+          inicioX = e.clientX;
+          inicioY = e.clientY;
+          palco.style.cursor = 'grabbing';
+        },
+        { passive: true }
+      );
+
+      palco.addEventListener('pointerup', (e) => {
+        palco.style.cursor = 'grab';
+        if (!ativo) return;
+        ativo = false;
+        const dx = e.clientX - inicioX;
+        const dy = e.clientY - inicioY;
+        // ignora se o gesto foi mais vertical que horizontal (é rolagem)
+        if (Math.abs(dx) < LIMIAR || Math.abs(dx) < Math.abs(dy)) return;
+        irPara((atual + (dx < 0 ? 1 : total - 1)) % total);
+        iniciar();
+      });
+
+      palco.addEventListener('pointercancel', () => {
+        ativo = false;
+        palco.style.cursor = 'grab';
+      });
+    }
   }
 </script>
