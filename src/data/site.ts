@@ -15,7 +15,7 @@ export const VIDEO_YOUTUBE_ID = 'rHH1sZPhw9U';
 export const NAV_LINKS = [
   { label: 'O programa', href: '#o-programa' },
   { label: 'A Unilever', href: '#a-unilever' },
-  { label: 'Pré Requisitos', href: '#pre-requisitos' },
+  { label: 'Pré-requisitos', href: '#pre-requisitos' },
   { label: 'Localidades', href: '#localidades' },
   { label: 'Benefícios', href: '#beneficios' },
   { label: 'Jornada', href: '#jornada' },

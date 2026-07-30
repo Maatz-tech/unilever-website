@@ -37,3 +37,6 @@ public/.DS_Store
 
 # fontes das imagens do hero, convertidas para webp em public/images/hero
 /pes-*.png
+
+# fontes dos depoimentos, convertidas para webp em public/images/stories
+/depoimentos-unilever/

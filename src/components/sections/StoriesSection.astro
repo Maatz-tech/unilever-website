@@ -39,10 +39,10 @@ import { STORIES } from '../../data/stories';
                   <span class="anel block w-full rounded-full p-[2.387px] lg:p-[3.366px]">
                     <span class="block rounded-full bg-cloud p-[4.38px] lg:p-[6.18px]">
                       <img
-                        src={story.foto.replace('.webp', '-mini.webp')}
+                        src={story.avatar}
                         alt=""
-                        width="91"
-                        height="91"
+                        width="98"
+                        height="98"
                         loading="lazy"
                         draggable="false"
                         class="aspect-square w-full rounded-full border-[1.854px] border-black/10 object-cover"
@@ -89,8 +89,14 @@ import { STORIES } from '../../data/stories';
       <!-- Figma: dois gradientes independentes — 128px preto/70% no topo e um
            mais alto, azul-noite, subindo da base (não um único overlay). -->
       <div class="pointer-events-none absolute inset-x-0 top-0 h-[19.9%] bg-gradient-to-b from-black/70 to-transparent"></div>
+      <!-- O gradiente do Figma cobre 60% do card com o meio em 45% de opacidade,
+           dimensionado para o texto curto do exemplo. Com os depoimentos reais
+           (até 346 caracteres) a legenda sobe até ~50% do card e caía em cima da
+           parte clara da foto, ilegível. Subi a cobertura para 78% e reforcei o
+           meio: nos depoimentos curtos o efeito é quase o mesmo, porque eles
+           ficam na faixa que já era escura. -->
       <div
-        class="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[rgb(5_24_56/0.8)] via-[rgb(5_24_56/0.45)] via-50% to-transparent"
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-[78%] bg-gradient-to-t from-[rgb(5_24_56/0.88)] via-[rgb(5_24_56/0.58)] via-45% to-transparent"
       >
       </div>
 
@@ -121,9 +127,17 @@ import { STORIES } from '../../data/stories';
         <p data-story-nome class="text-[14px] font-bold leading-[21px] text-cloud"></p>
       </header>
 
+      <!-- A legenda é ancorada pela BASE, não pelo topo em 60.5% como o Figma
+           sugere. O texto de exemplo do design tem ~100 caracteres; os
+           depoimentos reais vão a 346, e com o topo fixo os mais longos
+           vazavam 27px abaixo do card numa janela de 700px de altura (o card
+           acompanha a altura da viewport). Ancorando embaixo, o texto cresce
+           para cima, dentro do gradiente — que ocupa os 60% inferiores. Nos
+           depoimentos curtos a legenda cai em ~63% do card, praticamente onde
+           o Figma a coloca. A margem de 6.65% é a mesma das laterais. -->
       <figcaption
         data-story-legenda
-        class="absolute left-1/2 top-[60.5%] flex w-[86.7%] -translate-x-1/2 flex-col gap-3"
+        class="absolute bottom-[6.65%] left-1/2 flex w-[86.7%] -translate-x-1/2 flex-col justify-end gap-3"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" class="size-7 text-aqua" aria-hidden="true">
           <path d="M9.5 5C6.46 5 4 7.46 4 10.5S6.46 16 9.5 16h.6c-.4 1.6-1.6 2.6-3.1 3l.7 2c3-.8 5.3-3.4 5.3-7.5V10.5C13 7.46 12.54 5 9.5 5zm10 0C16.46 5 14 7.46 14 10.5S16.46 16 19.5 16h.6c-.4 1.6-1.6 2.6-3.1 3l.7 2c3-.8 5.3-3.4 5.3-7.5V10.5C23 7.46 22.54 5 19.5 5z"/>
@@ -303,8 +317,8 @@ import { STORIES } from '../../data/stories';
       const s = STORIES[i];
       atual = i;
       el.foto.src = s.foto;
-      el.foto.alt = `${s.nome}, ${s.area}`;
-      el.avatar.src = s.foto;
+      el.foto.alt = s.nome;
+      el.avatar.src = s.avatar;
       el.avatar.alt = '';
       el.nome.textContent = s.nome;
       el.texto.textContent = s.depoimento;
