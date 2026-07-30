@@ -132,6 +132,7 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
 <!-- ── modal das áreas ──────────────────────────────────────────────────── -->
 <dialog id="areas-dialog" class="areas-dialog" aria-labelledby="areas-titulo">
   <div data-areas-painel class="areas-painel">
+   <div data-areas-corpo class="areas-corpo">
     <div class="flex items-start justify-between gap-4">
       <div>
         <p class="rotulo">Áreas de atuação</p>
@@ -168,6 +169,7 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
         </div>
       ))
     }
+   </div>
   </div>
 </dialog>
 
@@ -292,19 +294,65 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
     -webkit-backdrop-filter: blur(11.1px);
   }
 
+  /* O painel só desenha: raio, fundo, sombra. Quem rola é um filho que ocupa
+     100% dele e carrega TODO o padding.
+       - a barra encosta na borda direita do painel, como deve;
+       - o `overflow: hidden` do pai recorta a barra no raio de 28px, então ela
+         não cruza a curva do canto (era o que parecia estar do lado de fora);
+       - com o padding no filho, o conteúdo rola de borda a borda: não sobra
+         faixa morta em cima nem embaixo. */
   .areas-painel {
     width: min(560px, 92vw);
     max-height: min(84dvh, 760px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 28px 24px 32px;
+    display: flex;
     border-radius: 28px;
     background: var(--color-cloud);
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    overflow: hidden;
+  }
+
+  .areas-corpo {
+    width: 100%;
+    /* min-height 0 é o que deixa o filho de um flex encolher e rolar */
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 28px 24px 32px;
+
+    /* espaço da barra reservado sempre: só São Paulo tem conteúdo maior que o
+       painel, e sem isso o texto pularia ao trocar de estado */
+    scrollbar-gutter: stable;
+  }
+
+  /* Nada de `scrollbar-width`/`scrollbar-color`: ao ver qualquer uma das duas,
+     o Chrome desenha a barra padrão dele e IGNORA o bloco abaixo — perderíamos
+     o polegar arredondado em sky-pale. */
+  .areas-corpo::-webkit-scrollbar {
+    width: 8px;
+  }
+  /* Sem margem no trilho: a barra corre a altura inteira, colada na borda. Quem
+     cuida do canto é o `overflow: hidden` do painel, que a recorta no raio. */
+  .areas-corpo::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .areas-corpo::-webkit-scrollbar-thumb {
+    background: var(--color-sky-pale);
+    border-radius: 999px;
+  }
+  .areas-corpo::-webkit-scrollbar-thumb:hover {
+    background: var(--color-sky-mid);
+  }
+
+  /* Firefox não implementa ::-webkit-scrollbar; para ele, as padrão. */
+  @supports not selector(::-webkit-scrollbar) {
+    .areas-corpo {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-sky-pale) transparent;
+    }
   }
 
   @media (min-width: 1024px) {
-    .areas-painel {
+    .areas-corpo {
       padding: 36px 40px 40px;
     }
   }
@@ -362,6 +410,7 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
     const bloco = secao.querySelector<HTMLElement>('[data-uf-bloco]');
 
     const painel = dialog.querySelector<HTMLElement>('[data-areas-painel]')!;
+    const corpo = dialog.querySelector<HTMLElement>('[data-areas-corpo]')!;
     const tituloModal = dialog.querySelector<HTMLElement>('[data-areas-uf]')!;
     const blocosModal = Array.from(dialog.querySelectorAll<HTMLElement>('[data-areas-estado]'));
 
@@ -414,7 +463,7 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
     // ── modal ──────────────────────────────────────────────────────────
     secao.querySelector('[data-abrir-areas]')?.addEventListener('click', async () => {
       dialog.showModal();
-      painel.scrollTop = 0;
+      corpo.scrollTop = 0;
       if (prefersReducedMotion()) return;
       const { animate } = await import('motion');
       // mesma entrada do card de stories, para os dois modais combinarem
