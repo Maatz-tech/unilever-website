@@ -1,5 +1,5 @@
 ---
-import { VIEWBOX, ufPaths, pinsMapa } from '../../data/brasilPaths.js';
+import { VIEWBOX, ufPaths } from '../../data/brasilPaths.js';
 import { localidades } from '../../data/localidades.js';
 
 /**
@@ -11,10 +11,19 @@ import { localidades } from '../../data/localidades.js';
  * Aqui usamos um único SVG com um <path> por estado (viewBox 613×639, mesma
  * proporção do frame do Figma): é o que permite clicar, focar por teclado e
  * pintar o estado selecionado sem gerenciar 27 imagens.
+ *
+ * Os pinos pulsantes vêm de `localidades` (campo `pino`), não de uma lista
+ * própria: antes eram nove coordenadas soltas e sobrariam pinos em estados fora
+ * do programa quando a lista encolhesse.
+ *
+ * "Confira as áreas" abre um modal com as áreas de cada cidade do estado
+ * selecionado. Os três blocos são renderizados no HTML e o JS só alterna qual
+ * está visível — sem `innerHTML`, e o conteúdo existe mesmo sem JS.
  */
 
 const noPrograma = new Set(localidades.map((l) => l.uf));
 const inicial = localidades[0];
+const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
 ---
 
 <section id="localidades" class="bg-cloud py-[72px] lg:py-[120px]">
@@ -55,10 +64,10 @@ const inicial = localidades[0];
             )
           }
           {
-            pinsMapa.map((pin: { cx: number; cy: number }, i: number) => (
+            localidades.map((l: { pino: { cx: number; cy: number } }, i: number) => (
               <g class="pointer-events-none">
-                <circle cx={pin.cx} cy={pin.cy} r="5" class="pino-pulso" style={`animation-delay:${i * 0.28}s`} />
-                <circle cx={pin.cx} cy={pin.cy} r="4.5" fill="#fff" stroke="var(--color-sky)" stroke-width="2" />
+                <circle cx={l.pino.cx} cy={l.pino.cy} r="5" class="pino-pulso" style={`animation-delay:${i * 0.28}s`} />
+                <circle cx={l.pino.cx} cy={l.pino.cy} r="4.5" fill="#fff" stroke="var(--color-sky)" stroke-width="2" />
               </g>
             ))
           }
@@ -72,29 +81,28 @@ const inicial = localidades[0];
       >
         <p class="rotulo">Estado selecionado</p>
         <div data-uf-bloco>
-        <h3 data-uf-nome class="pt-[10px] text-[24px] font-bold leading-[1.5] text-night lg:text-[32px]">
-          {inicial.nome}
-        </h3>
+          <h3 data-uf-nome class="pt-[10px] text-[24px] font-bold leading-[1.5] text-night lg:text-[32px]">
+            {inicial.nome}
+          </h3>
 
-        <ul data-uf-cidades class="flex flex-wrap gap-x-6 gap-y-1 pt-3">
-          {
-            inicial.cidades.map((cidade: string) => (
-              <li class="flex items-center gap-1">
-                <img src={`${import.meta.env.BASE_URL}images/map/place.svg`} alt="" width="14" height="14" class="size-[13.993px]" />
-                <span class="text-[16px] leading-6 text-night-72">{cidade}</span>
-              </li>
-            ))
-          }
-        </ul>
-
+          <ul data-uf-cidades class="flex flex-wrap gap-x-6 gap-y-1 pt-3">
+            {
+              inicial.cidades.map((cidade: { nome: string }) => (
+                <li class="flex items-center gap-1">
+                  <img src={PLACE} alt="" width="14" height="14" class="size-[13.993px]" />
+                  <span class="text-[16px] leading-6 text-night-72">{cidade.nome}</span>
+                </li>
+              ))
+            }
+          </ul>
         </div>
 
-        <a href="#inscricao" class="link-areas mt-6 inline-flex items-center gap-2 text-[20px] font-bold text-sky">
+        <button type="button" data-abrir-areas class="link-areas mt-6 inline-flex items-center gap-2 text-[20px] font-bold text-sky">
           Confira as áreas
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="seta-areas size-5" aria-hidden="true">
             <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-        </a>
+        </button>
 
         <div class="mt-6 h-px w-full bg-night/12"></div>
 
@@ -120,6 +128,48 @@ const inicial = localidades[0];
     </div>
   </div>
 </section>
+
+<!-- ── modal das áreas ──────────────────────────────────────────────────── -->
+<dialog id="areas-dialog" class="areas-dialog" aria-labelledby="areas-titulo">
+  <div data-areas-painel class="areas-painel">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="rotulo">Áreas de atuação</p>
+        <h3 id="areas-titulo" data-areas-uf class="pt-1 text-[24px] font-bold leading-[1.3] text-night lg:text-[32px]">
+          {inicial.nome}
+        </h3>
+      </div>
+
+      <button type="button" data-fechar-areas class="areas-fechar" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    {
+      localidades.map((l: { uf: string; cidades: { nome: string; areas: string[] }[] }, i: number) => (
+        <div data-areas-estado={l.uf} hidden={i > 0} class="flex flex-col gap-6 pt-7">
+          {l.cidades.map((cidade) => (
+            <div>
+              <p class="flex items-center gap-1.5">
+                <img src={PLACE} alt="" width="14" height="14" class="size-[13.993px]" />
+                <span class="text-[16px] font-bold leading-6 text-night">
+                  {cidade.nome}/{l.uf.toUpperCase()}
+                </span>
+              </p>
+              <ul class="flex flex-wrap gap-2 pt-3">
+                {cidade.areas.map((area) => (
+                  <li class="badge-area">{area}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</dialog>
 
 <style>
   .rotulo {
@@ -212,6 +262,81 @@ const inicial = localidades[0];
     color: var(--color-cloud);
   }
 
+  /* --- modal das áreas ------------------------------------------------
+     Mesmo overlay do visualizador de stories (rgb(5 16 40 / 0.88) com blur
+     11.1px, Figma 4193:15160) para os dois modais do site serem a mesma
+     coisa. O <dialog> nativo já entrega foco preso, ESC e backdrop. */
+  /* O <dialog> ocupa a viewport inteira e centra o painel — sobrescrever
+     max-width/max-height sem isso derruba o `margin:auto` do navegador e o
+     painel gruda no canto. O `display` só vale com [open], senão o modal
+     apareceria fechado. */
+  .areas-dialog {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .areas-dialog[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .areas-dialog::backdrop {
+    background: rgb(5 16 40 / 0.88);
+    backdrop-filter: blur(11.1px);
+    -webkit-backdrop-filter: blur(11.1px);
+  }
+
+  .areas-painel {
+    width: min(560px, 92vw);
+    max-height: min(84dvh, 760px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 28px 24px 32px;
+    border-radius: 28px;
+    background: var(--color-cloud);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  @media (min-width: 1024px) {
+    .areas-painel {
+      padding: 36px 40px 40px;
+    }
+  }
+
+  .areas-fechar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: rgb(19 48 98 / 0.06);
+    color: var(--color-night);
+    transition: background 180ms ease;
+  }
+  .areas-fechar:hover {
+    background: rgb(19 48 98 / 0.12);
+  }
+
+  /* a tag de cada área */
+  .badge-area {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--color-sky-pale);
+    color: var(--color-sky-dark);
+    padding: 7px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .pino-pulso {
       animation: none;
@@ -227,12 +352,20 @@ const inicial = localidades[0];
   revealOnScroll('#localidades [data-reveal]');
 
   const secao = document.querySelector('#localidades');
-  if (secao) {
+  const dialog = document.querySelector<HTMLDialogElement>('#areas-dialog');
+
+  if (secao && dialog) {
     const nome = secao.querySelector<HTMLElement>('[data-uf-nome]')!;
     const cidades = secao.querySelector<HTMLElement>('[data-uf-cidades]')!;
     const paths = Array.from(secao.querySelectorAll<SVGPathElement>('[data-uf]'));
     const chips = Array.from(secao.querySelectorAll<HTMLButtonElement>('[data-chip]'));
     const bloco = secao.querySelector<HTMLElement>('[data-uf-bloco]');
+
+    const painel = dialog.querySelector<HTMLElement>('[data-areas-painel]')!;
+    const tituloModal = dialog.querySelector<HTMLElement>('[data-areas-uf]')!;
+    const blocosModal = Array.from(dialog.querySelectorAll<HTMLElement>('[data-areas-estado]'));
+
+    const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
 
     const selecionar = (uf: string) => {
       const l = localidades.find((x: { uf: string }) => x.uf === uf);
@@ -241,13 +374,17 @@ const inicial = localidades[0];
       nome.textContent = l.nome;
       cidades.innerHTML = l.cidades
         .map(
-          (c: string) =>
-            `<li class="flex items-center gap-1"><img src="${import.meta.env.BASE_URL}images/map/place.svg" alt="" width="14" height="14" class="size-[13.993px]" /><span class="text-[16px] leading-6 text-night-72">${c}</span></li>`
+          (c: { nome: string }) =>
+            `<li class="flex items-center gap-1"><img src="${PLACE}" alt="" width="14" height="14" class="size-[13.993px]" /><span class="text-[16px] leading-6 text-night-72">${c.nome}</span></li>`
         )
         .join('');
 
       for (const p of paths) p.setAttribute('aria-pressed', String(p.dataset.uf === uf));
       for (const c of chips) c.setAttribute('aria-pressed', String(c.dataset.chip === uf));
+
+      // o modal acompanha a seleção mesmo fechado
+      tituloModal.textContent = l.nome;
+      for (const b of blocosModal) b.hidden = b.dataset.areasEstado !== uf;
 
       // LocationsMap.jsx: o bloco do estado entra com y 12 e blur 6px (0.3s)
       if (bloco && !prefersReducedMotion()) {
@@ -273,5 +410,21 @@ const inicial = localidades[0];
       });
     }
     for (const c of chips) c.addEventListener('click', () => selecionar(c.dataset.chip!));
+
+    // ── modal ──────────────────────────────────────────────────────────
+    secao.querySelector('[data-abrir-areas]')?.addEventListener('click', async () => {
+      dialog.showModal();
+      painel.scrollTop = 0;
+      if (prefersReducedMotion()) return;
+      const { animate } = await import('motion');
+      // mesma entrada do card de stories, para os dois modais combinarem
+      animate(painel, { opacity: [0, 1], scale: [0.92, 1], y: [24, 0] }, { type: 'spring', stiffness: 300, damping: 28 });
+    });
+
+    dialog.querySelector('[data-fechar-areas]')?.addEventListener('click', () => dialog.close());
+    // clique fora do painel fecha
+    dialog.addEventListener('click', (e) => {
+      if (!painel.contains(e.target as Node)) dialog.close();
+    });
   }
 </script>

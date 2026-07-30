@@ -5,7 +5,13 @@ import { NAV_LINKS, INSCRICAO_URL } from '../data/site';
 
 <header id="topo" class="cabecalho">
   <div class="container-lp flex h-[64px] items-center justify-between px-6 lg:h-[94px] lg:px-3">
-    <a href="/" class="shrink-0 transition-opacity hover:opacity-80" aria-label="Unilever — página inicial">
+    <!-- `/` levava para a raiz do domínio, que no GitHub Pages é fora do site.
+         BASE_URL é a home tanto aqui quanto no domínio final. -->
+    <a
+      href={import.meta.env.BASE_URL}
+      class="shrink-0 transition-opacity hover:opacity-80"
+      aria-label="Unilever — página inicial"
+    >
       <img
         src={`${import.meta.env.BASE_URL}images/brand/unilever.webp`}
         alt="Unilever"
