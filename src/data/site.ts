@@ -3,8 +3,8 @@
  * Regra do playbook (Fase 6, DRY): listas de nav/social/legal moram aqui.
  */
 
-/** URL do formulário de inscrição. TODO: confirmar destino real (ver PROJECT.md) */
-export const INSCRICAO_URL = '#inscricao';
+/** Formulário de inscrição, na plataforma da Eureca. */
+export const INSCRICAO_URL = 'https://app.eureca.me/programas/019f413b-d816-74d6-bd34-8573ea9014cf/';
 
 /**
  * Vídeo do programa no YouTube.

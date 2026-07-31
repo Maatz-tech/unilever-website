@@ -1,7 +1,7 @@
 /**
  * Estados, cidades e áreas de atuação do programa.
  *
- * Lista fechada pelo cliente em 30/07/2026: são três estados, e cada cidade tem
+ * Lista fechada pelo cliente em 31/07/2026: são três estados, e cada cidade tem
  * suas próprias áreas — não existe uma lista de áreas por estado. O modal de
  * "Confira as áreas" é montado a partir daqui.
  *
@@ -20,22 +20,24 @@ export const localidades = [
         nome: 'São Paulo',
         areas: [
           'Marketing',
-          'Trade Marketing',
+          'Vendas',
+          'Desenvolvimento de negócio',
           'Recursos Humanos',
           'Tecnologia da Informação',
           'Jurídico',
           'Finanças',
           'Análise de Dados',
-          'Inteligência de Mercado',
+          'Planejamento',
           'Compras',
           'Supply Chain',
           'Pesquisa & Desenvolvimento',
         ],
       },
       { nome: 'Valinhos', areas: ['Recursos Humanos', 'Pesquisa & Desenvolvimento', 'Supply Chain'] },
-      { nome: 'Louveira', areas: ['Sustentabilidade'] },
+      { nome: 'Louveira', areas: ['Segurança do trabalho e meio ambiente'] },
+      { nome: 'Vinhedo', areas: ['Segurança do trabalho e meio ambiente'] },
       { nome: 'Aguaí', areas: ['Supply Chain'] },
-      { nome: 'Indaiatuba', areas: ['Supply Chain'] },
+      { nome: 'Indaiatuba', areas: ['Meio ambiente'] },
     ],
   },
   {
