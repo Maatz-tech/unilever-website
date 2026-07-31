@@ -3,9 +3,12 @@ import Instagram from './icons/Instagram.astro';
 import Facebook from './icons/Facebook.astro';
 import LinkedIn from './icons/LinkedIn.astro';
 import TikTok from './icons/TikTok.astro';
+import YouTube from './icons/YouTube.astro';
 import { SOCIAL_LINKS, LEGAL_LINKS } from '../data/site';
 
-const ICONS = { Instagram, Facebook, LinkedIn, TikTok };
+// O mapa tem mais ícones do que SOCIAL_LINKS usa de propósito: Facebook e
+// TikTok ficam prontos para o dia em que os endereços aparecerem.
+const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
 ---
 
 <footer class="bg-cloud">

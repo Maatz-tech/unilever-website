@@ -262,6 +262,23 @@
 }
 
 /* ============================================================
+   VLibras
+   O plugin deixa o contêiner em `position: fixed` com os offsets em `auto`,
+   e offset automático em elemento fixo resolve para a POSIÇÃO ESTÁTICA — que
+   aqui é o fim de um documento de ~9200px. Resultado: o botão nascia fora da
+   tela. Ancorando no canto inferior direito ele aparece onde se espera.
+   Fora da folha do componente de propósito: o plugin recria os nós e perderia
+   o atributo de escopo do Astro.
+   ============================================================ */
+
+div[vw] {
+  top: auto !important;
+  left: auto !important;
+  right: 16px !important;
+  bottom: 16px !important;
+}
+
+/* ============================================================
    Estado inicial dos reveals
    Só se aplica quando o JS está ativo (classe .js posta no <html> pelo
    Base.astro). Sem JS o conteúdo aparece normalmente — nada de página em

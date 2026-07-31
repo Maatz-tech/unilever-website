@@ -23,13 +23,13 @@ const FONTS = `${import.meta.env.BASE_URL}fonts/`;
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
 
 /**
- * Datas do processo, confirmadas pelo cliente: inscrições de 03/08 a 03/09 de
- * 2026 e início na empresa em fevereiro de 2027 — daí o nome do programa. Têm
- * de bater com a seção "As fases do game".
+ * Datas do processo, confirmadas pelo cliente: inscrições de 05/08 a 04/09 de
+ * 2026 e início na empresa em janeiro de 2027 — daí o nome do programa. Têm de
+ * bater com a seção "As fases do game".
  */
-const INSCRICOES_ABREM = '2026-08-03';
-const INSCRICOES_FECHAM = '2026-09-03T23:59:59-03:00';
-const INICIO_NA_EMPRESA = '2027-02-01';
+const INSCRICOES_ABREM = '2026-08-05';
+const INSCRICOES_FECHAM = '2026-09-04T23:59:59-03:00';
+const INICIO_NA_EMPRESA = '2027-01-01';
 
 /** Structured data: a página é uma vaga de estágio + a organização */
 const jsonLd = {
@@ -222,5 +222,39 @@ const jsonLd = {
       Ir para o conteúdo
     </a>
     <slot />
+
+    <!-- ── VLibras ───────────────────────────────────────────────────────
+         Tradutor de Libras do governo federal. A marcação é a que o plugin
+         exige (atributos `vw`, `vw-access-button`, `vw-plugin-wrapper`) e ele
+         a preenche sozinho com o ícone e o painel.
+
+         O script PRECISA ser carregado antes do evento `load`: o plugin faz a
+         renderização dentro de `window.onload`. Carregá-lo depois — por
+         requestIdleCallback, por exemplo — deixa o botão existindo no DOM,
+         com o tamanho e o cursor certos, mas VAZIO e invisível, porque o
+         `onload` nunca mais dispara. Por isso `defer`, e não injeção tardia:
+         não bloqueia o parse e ainda executa a tempo.
+
+         São 17KB; o avatar 3D só baixa quando alguém abre o widget. É a única
+         dependência externa do site.
+
+         O botão fica fixo no canto. Os modais (stories e áreas) usam <dialog>
+         nativo, que vive na top layer e sempre desenha por cima — não há
+         disputa de z-index. -->
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+
+    <script is:inline defer src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script is:inline>
+      // scripts `defer` rodam antes do DOMContentLoaded, então window.VLibras
+      // já existe aqui — e o `window.onload` interno do plugin ainda está por vir
+      window.addEventListener('DOMContentLoaded', function () {
+        if (window.VLibras) new window.VLibras.Widget('https://vlibras.gov.br/app');
+      });
+    </script>
   </body>
 </html>

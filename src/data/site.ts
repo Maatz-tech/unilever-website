@@ -21,12 +21,15 @@ export const NAV_LINKS = [
   { label: 'Jornada', href: '#jornada' },
 ] as const;
 
-/** TODO: substituir pelos perfis reais (ver PROJECT.md) */
+/**
+ * Só entram redes com link de verdade — o rodapé renderiza esta lista e nada
+ * mais. Facebook e TikTok saíram por não terem endereço; os componentes de
+ * ícone continuam no projeto, então voltar é acrescentar a linha aqui.
+ */
 export const SOCIAL_LINKS = [
-  { label: 'Instagram', href: '#', icon: 'Instagram' },
-  { label: 'Facebook', href: '#', icon: 'Facebook' },
-  { label: 'LinkedIn', href: '#', icon: 'LinkedIn' },
-  { label: 'TikTok', href: '#', icon: 'TikTok' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/unilever/', icon: 'LinkedIn' },
+  { label: 'Instagram', href: 'https://www.instagram.com/carreirasunilever/reels/', icon: 'Instagram' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@carreirasunilever', icon: 'YouTube' },
 ] as const;
 
 /** Avisos oficiais da Unilever (versão Brasil / português) */
