@@ -4,11 +4,12 @@ import Facebook from './icons/Facebook.astro';
 import LinkedIn from './icons/LinkedIn.astro';
 import TikTok from './icons/TikTok.astro';
 import YouTube from './icons/YouTube.astro';
-import { SOCIAL_LINKS, LEGAL_LINKS } from '../data/site';
+import X from './icons/X.astro';
+import { SOCIAL_LINKS, LEGAL_LINKS, MAATZ_URL } from '../data/site';
 
-// O mapa tem mais ícones do que SOCIAL_LINKS usa de propósito: Facebook e
-// TikTok ficam prontos para o dia em que os endereços aparecerem.
-const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
+// O mapa tem mais ícones do que SOCIAL_LINKS usa de propósito: o TikTok fica
+// pronto para o dia em que o endereço aparecer.
+const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube, X };
 ---
 
 <footer class="bg-cloud">
@@ -38,7 +39,10 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
       />
     </div>
 
-    <ul class="flex items-center">
+    <!-- flex-wrap: são 6 ícones de 40px = 240px, que ainda cabem num viewport de
+         320px, mas sem folga nenhuma. O wrap é a rede de segurança para o dia
+         em que entrar a sétima rede. -->
+    <ul class="flex flex-wrap items-center justify-center">
       {
         SOCIAL_LINKS.map((social) => {
           const Icon = ICONS[social.icon];
@@ -47,6 +51,7 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
               <a
                 href={social.href}
                 aria-label={social.label}
+                title={social.label}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="flex size-10 items-center justify-center rounded-full text-sky-dark transition-colors hover:text-sky"
@@ -82,7 +87,15 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
       }
     </ul>
 
-    <div class="flex items-center gap-2">
+    <!-- O crédito inteiro é clicável, não só o logo: o alvo fica maior e o
+         hover acende texto e marca juntos, como uma peça só. Sem aria-label —
+         o texto do <span> + o alt da imagem já nomeiam o link. -->
+    <a
+      href={MAATZ_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center gap-2 transition-opacity hover:opacity-80"
+    >
       <span class="body-sm">Desenvolvido por</span>
       <img
         src={`${import.meta.env.BASE_URL}images/brand/maatz.svg`}
@@ -92,6 +105,6 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube };
         class="h-[18px] w-auto"
         loading="lazy"
       />
-    </div>
+    </a>
   </div>
 </footer>

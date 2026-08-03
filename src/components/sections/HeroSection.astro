@@ -1,7 +1,7 @@
 ---
 import HeroFrame from '../icons/HeroFrame.astro';
 import HeroShape from '../icons/HeroShape.astro';
-import { INSCRICAO_URL } from '../../data/site';
+import { inscricaoUrl } from '../../data/site';
 
 /**
  * Hero — 5 slides, desktop e mobile.
@@ -174,7 +174,9 @@ const M_PES = { w: 370, top: 253.68 };
            invólucro: o transform do hover fica só do botão. -->
       <div data-hero-in="1" class="absolute left-0 right-0 top-[526em] flex justify-center">
         <a
-          href={INSCRICAO_URL}
+          href={inscricaoUrl('hero')}
+          target="_blank"
+          rel="noopener noreferrer"
           class="btn btn-invert rounded-[16em] px-[24em] pb-[14em] pt-[16em]"
         >
           <span class="text-[20em] leading-[1]">Inscreva-se agora!</span>
@@ -265,7 +267,9 @@ const M_PES = { w: 370, top: 253.68 };
 
             <div data-hero-in="1" class="absolute left-[78.38em] top-[330.72em]">
               <a
-                href={INSCRICAO_URL}
+                href={inscricaoUrl('hero')}
+                target="_blank"
+                rel="noopener noreferrer"
                 class="btn btn-invert rounded-[16em] px-[32em] pb-[22em] pt-[24em]"
               >
                 <span class="text-[24em] leading-[0.8333]">Inscreva-se agora!</span>

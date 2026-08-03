@@ -1,6 +1,6 @@
 ---
 import Button from '../Button.astro';
-import { INSCRICAO_URL } from '../../data/site';
+import { inscricaoUrl } from '../../data/site';
 
 /**
  * Timeline — "As fases do game", fundo earth.
@@ -98,8 +98,8 @@ const COR = {
     </div>
 
     <div data-reveal>
-      <Button href={INSCRICAO_URL} size="md" class="lg:hidden">Inscreva-se agora!</Button>
-      <Button href={INSCRICAO_URL} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
+      <Button href={inscricaoUrl('jornada')} size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={inscricaoUrl('jornada')} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
     </div>
   </div>
 </section>

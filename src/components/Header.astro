@@ -1,6 +1,6 @@
 ---
 import Button from './Button.astro';
-import { NAV_LINKS, INSCRICAO_URL } from '../data/site';
+import { NAV_LINKS, inscricaoUrl } from '../data/site';
 ---
 
 <header id="topo" class="cabecalho">
@@ -37,7 +37,7 @@ import { NAV_LINKS, INSCRICAO_URL } from '../data/site';
       </ul>
     </nav>
 
-    <Button href={INSCRICAO_URL} size="sm" class="btn-compacto shrink-0">Inscreva-se</Button>
+    <Button href={inscricaoUrl('header')} size="sm" class="btn-compacto shrink-0">Inscreva-se</Button>
   </div>
 </header>
 

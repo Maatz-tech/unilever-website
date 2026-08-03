@@ -1,7 +1,7 @@
 ---
 import Button from '../Button.astro';
 import RevealText from '../RevealText.astro';
-import { INSCRICAO_URL } from '../../data/site';
+import { inscricaoUrl } from '../../data/site';
 
 /**
  * Sobre o programa — headline, dois parágrafos e a galeria de 4 fotos.
@@ -91,8 +91,8 @@ const FOTOS = {
 
     <!-- ── CTA ──────────────────────────────────────────────────────── -->
     <div class="lg:flex lg:justify-center lg:pt-11" data-reveal>
-      <Button href={INSCRICAO_URL} size="md" class="lg:hidden">Inscreva-se agora!</Button>
-      <Button href={INSCRICAO_URL} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
+      <Button href={inscricaoUrl('o-programa')} size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={inscricaoUrl('o-programa')} size="lg" class="hidden lg:inline-flex">Inscreva-se agora!</Button>
     </div>
   </div>
 </section>

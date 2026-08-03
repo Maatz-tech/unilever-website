@@ -1,7 +1,7 @@
 ---
 import Button from '../Button.astro';
 import RevealText from '../RevealText.astro';
-import { INSCRICAO_URL } from '../../data/site';
+import { inscricaoUrl } from '../../data/site';
 
 /**
  * Pré-requisitos — fundo night, 3 cards de vidro + foto com o selo do programa.
@@ -99,8 +99,8 @@ const REQUISITOS = [
     </div>
 
     <div data-reveal>
-      <Button href={INSCRICAO_URL} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
-      <Button href={INSCRICAO_URL} variant="invert" size="lg" class="hidden lg:inline-flex">
+      <Button href={inscricaoUrl('pre-requisitos')} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
+      <Button href={inscricaoUrl('pre-requisitos')} variant="invert" size="lg" class="hidden lg:inline-flex">
         Inscreva-se agora!
       </Button>
     </div>

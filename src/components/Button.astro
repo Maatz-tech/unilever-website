@@ -13,11 +13,24 @@ interface Props {
 const { href, variant = 'primary', size = 'lg', class: className = '' } = Astro.props;
 
 const classes = ['btn', `btn-${variant}`, `btn-${size}`, className].filter(Boolean).join(' ');
+
+/**
+ * Link para fora (a inscrição na Eureca) abre em nova aba, para a pessoa não
+ * perder o hotsite ao ir preencher o formulário. Detectado pelo protocolo em
+ * vez de uma prop: as âncoras internas (#secao) continuam navegando na mesma
+ * aba sem ninguém precisar lembrar de passar nada.
+ */
+const isExternal = href?.startsWith('http') ?? false;
 ---
 
 {
   href ? (
-    <a href={href} class={classes}>
+    <a
+      href={href}
+      class={classes}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+    >
       <slot />
     </a>
   ) : (

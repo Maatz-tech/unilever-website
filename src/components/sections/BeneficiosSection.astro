@@ -1,7 +1,7 @@
 ---
 import Button from '../Button.astro';
 import { PILARES, BENEFICIOS } from '../../data/beneficios';
-import { INSCRICAO_URL } from '../../data/site';
+import { inscricaoUrl } from '../../data/site';
 
 /**
  * Benefícios — fundo night, dois blocos.
@@ -115,8 +115,8 @@ import { INSCRICAO_URL } from '../../data/site';
       </p>
 
       <div data-reveal>
-        <Button href={INSCRICAO_URL} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
-        <Button href={INSCRICAO_URL} variant="invert" size="lg" class="hidden lg:inline-flex">
+        <Button href={inscricaoUrl('beneficios')} variant="invert" size="md" class="lg:hidden">Inscreva-se agora!</Button>
+        <Button href={inscricaoUrl('beneficios')} variant="invert" size="lg" class="hidden lg:inline-flex">
           Inscreva-se agora!
         </Button>
       </div>

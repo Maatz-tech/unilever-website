@@ -5,8 +5,12 @@ interface Props {
 const { class: className = "size-6" } = Astro.props;
 ---
 
+<!-- O path é um "f" solto de 12.46x24 — sem respiro, ele encosta em cima e
+     embaixo e sai mais alto que os vizinhos, que já vêm com viewBox folgado.
+     A caixa abaixo é quadrada (28.8), centrada no glifo, e o encolhe para
+     ~20px no size-6: mesmo peso óptico do LinkedIn. -->
 <svg
-  viewBox="0 0 12.4625 24"
+  viewBox="-8.17 -2.4 28.8 28.8"
   fill="currentColor"
   xmlns="http://www.w3.org/2000/svg"
   aria-hidden="true"
