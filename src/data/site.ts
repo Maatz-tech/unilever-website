@@ -7,12 +7,19 @@
 export const INSCRICAO_URL = 'https://app.eureca.me/programas/019f413b-d816-74d6-bd34-8573ea9014cf/';
 
 /**
+ * Origem de tudo que sai daqui: é sempre este hotsite. Fica numa constante
+ * porque quem lê o relatório é o analytics do site de destino, onde um
+ * `hotsite` genérico não diria de qual.
+ */
+const UTM_SOURCE = 'hotsite-unilever';
+
+/**
  * UTMs fixas de tudo que sai do hotsite para a Eureca. O que varia entre um
  * CTA e outro é só o `utm_content`, que diz de QUAL bloco da página a pessoa
  * saiu — é o que permite ler no relatório qual seção converte.
  */
 const UTM_BASE = {
-  utm_source: 'hotsite',
+  utm_source: UTM_SOURCE,
   utm_medium: 'cta',
   utm_campaign: 'estagio-unilever-2027',
 } as const;
@@ -27,7 +34,23 @@ export function inscricaoUrl(origem: string): string {
   return `${INSCRICAO_URL}?${params}`;
 }
 
-/** Assinatura do rodapé. UTMs próprias: aqui a origem é o site, não o CTA. */
+/**
+ * Links de rodapé que saem para site institucional, não para o formulário.
+ * Mesma origem dos CTAs; o que muda é o `utm_medium` (footer, não cta) e o
+ * `utm_content`, que separa qual dos dois logos do rodapé foi clicado.
+ */
+const UTM_RODAPE = `utm_source=${UTM_SOURCE}&utm_medium=footer`;
+
+/** Logo da Unilever no rodapé. */
+export const UNILEVER_URL = `https://www.unilever.com.br/?${UTM_RODAPE}&utm_campaign=estagio-unilever-2027&utm_content=logo-unilever`;
+
+/** Logo da Eureca no rodapé. */
+export const EURECA_URL = `https://eureca.me/?${UTM_RODAPE}&utm_campaign=estagio-unilever-2027&utm_content=logo-eureca`;
+
+/**
+ * Assinatura do rodapé. Único link com origem própria: no analytics da Maatz
+ * o que identifica este trabalho é o par de clientes, não o nome do hotsite.
+ */
 export const MAATZ_URL =
   'https://maatz.com.br/?utm_source=unilever-eureca&utm_medium=footer&utm_campaign=portfolio';
 
@@ -47,32 +70,20 @@ export const NAV_LINKS = [
 ] as const;
 
 /**
- * Só entram redes com link de verdade — o rodapé renderiza esta lista e nada
+ * Lista e ordem vieram fechadas do cliente — o rodapé renderiza isto e nada
  * mais. O TikTok segue de fora por não ter endereço; o componente de ícone
  * continua no projeto, então voltar é acrescentar a linha aqui.
  *
- * São DOIS Instagram de propósito: o de carreiras (conteúdo do programa) e o
- * institucional do Brasil. Como o ícone é o mesmo nos dois, o `label` precisa
- * diferenciar — ele vira aria-label e title, que é o que separa um do outro
- * para leitor de tela e no hover.
+ * O `label` vira aria-label e title de cada link.
  */
 export const SOCIAL_LINKS = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/unilever/', icon: 'LinkedIn' },
   {
-    label: 'Instagram Carreiras Unilever',
+    label: 'Instagram',
     href: 'https://www.instagram.com/carreirasunilever/reels/',
     icon: 'Instagram',
   },
-  {
-    label: 'Instagram Unilever Brasil',
-    href: 'https://www.instagram.com/unileverbrasil',
-    icon: 'Instagram',
-  },
-  {
-    label: 'YouTube Carreiras Unilever',
-    href: 'https://www.youtube.com/@carreirasunilever',
-    icon: 'YouTube',
-  },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/unilever', icon: 'LinkedIn' },
+  { label: 'YouTube', href: 'https://www.youtube.com/user/projectsunlightBR', icon: 'YouTube' },
   { label: 'Facebook', href: 'https://www.facebook.com/unilever', icon: 'Facebook' },
   { label: 'X', href: 'https://x.com/UnileverBrasil', icon: 'X' },
 ] as const;

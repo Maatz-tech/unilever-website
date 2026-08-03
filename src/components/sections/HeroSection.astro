@@ -186,7 +186,12 @@ const M_PES = { w: 370, top: 253.68 };
       <!-- Navegação do carrossel. Não existe no Figma: adicionada para dar
            controle manual ao usuário, alinhada ao CTA no desktop e abaixo dele
            no mobile. -->
-      <ul class="absolute left-1/2 top-[596em] flex -translate-x-1/2 items-center gap-[8em]" aria-label="Escolher slide">
+      <!-- top compensado: a caixa de toque tem 24px e a pílula 8em, então o
+           topo sobe (12px - 4em) para a bolinha continuar no mesmo y de antes. -->
+      <ul
+        class="absolute left-1/2 top-[calc(600em-12px)] flex -translate-x-1/2 items-center"
+        aria-label="Escolher slide"
+      >
         {
           SLIDES.map((_, i) => (
             <li>
@@ -321,7 +326,13 @@ const M_PES = { w: 370, top: 253.68 };
              O left 178.38 = 100 (borda do content-side) + 78.38 (mesmo x do CTA). -->
         <!-- Não existe no Figma: adicionada para dar
            -->
-      <ul class="absolute left-[178.38em] top-[574em] flex items-center gap-[8em]" aria-label="Escolher slide">
+      <!-- top e left compensados: a caixa de toque tem 24px e a pílula 8em, então
+           o bloco recua (12px - 4em) nos dois eixos para a primeira bolinha
+           continuar no mesmo x do CTA e no mesmo y de antes. -->
+      <ul
+        class="absolute left-[calc(182.38em-12px)] top-[calc(578em-12px)] flex items-center"
+        aria-label="Escolher slide"
+      >
         {
           SLIDES.map((_, i) => (
             <li>
@@ -381,23 +392,34 @@ const M_PES = { w: 370, top: 253.68 };
   }
 
   /* bolinhas do carrossel: pílula que estica quando ativa */
-  /* PENDENTE DE DECISÃO: 8×8em é um alvo de toque pequeno (a WCAG 2.2 pede
-     24×24). Aumentar por padding faz os alvos se sobreporem e o axe reprova por
-     espaçamento, então passar de verdade exige espalhar as pílulas na tela —
-     mudança visual, não técnica. */
+  /* WCAG 2.2 (2.5.8): o BOTÃO é o alvo de toque — 24x24 em px de verdade, não
+     em `em`, porque o em do palco encolhe junto com a viewport e 24em viraria
+     ~22px num celular de 360. A pílula desenhada continua 8em: quem cresceu foi
+     a área invisível ao redor dela, no ::before.
+     Sem gap na lista de propósito: com caixas de 24px encostadas, o centro de
+     uma pílula fica a 24px do centro da vizinha, que é exatamente o mínimo. Pôr
+     gap aqui só afasta mais as bolinhas do desenho original. */
   .bolinha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
+    cursor: pointer;
+  }
+  .bolinha::before {
+    content: '';
     display: block;
     width: 8em;
     height: 8em;
     border-radius: 999em;
     background: rgb(255 255 255 / 0.45);
-    cursor: pointer;
     transition: width 300ms ease, background 300ms ease;
   }
-  .bolinha:hover {
+  .bolinha:hover::before {
     background: rgb(255 255 255 / 0.75);
   }
-  .bolinha[aria-current='true'] {
+  .bolinha[aria-current='true']::before {
     width: 26em;
     background: var(--color-cloud);
   }

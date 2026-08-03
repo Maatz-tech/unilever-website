@@ -1,15 +1,9 @@
 ---
-import Instagram from './icons/Instagram.astro';
-import Facebook from './icons/Facebook.astro';
-import LinkedIn from './icons/LinkedIn.astro';
-import TikTok from './icons/TikTok.astro';
-import YouTube from './icons/YouTube.astro';
-import X from './icons/X.astro';
-import { SOCIAL_LINKS, LEGAL_LINKS, MAATZ_URL } from '../data/site';
+import { SOCIAL_LINKS, LEGAL_LINKS, MAATZ_URL, UNILEVER_URL, EURECA_URL } from '../data/site';
 
-// O mapa tem mais ícones do que SOCIAL_LINKS usa de propósito: o TikTok fica
-// pronto para o dia em que o endereço aparecer.
-const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube, X };
+// Os ícones de rede vêm dos SVGs exportados do Figma em
+// public/images/icons/icon-<rede>.svg — o `icon` de cada item de SOCIAL_LINKS
+// em minúsculo é o nome do arquivo. Rede nova = SVG novo na mesma pasta.
 ---
 
 <footer class="bg-cloud">
@@ -20,47 +14,72 @@ const ICONS = { Instagram, Facebook, LinkedIn, TikTok, YouTube, X };
     <!-- Altura fixa: no Figma o bloco de logos define a altura da faixa
          (49px no mobile, 56px no desktop), não o logo em si. -->
     <div class="flex h-[49px] items-center gap-[21px] md:h-14 md:gap-6">
-      <img
-        src={`${import.meta.env.BASE_URL}images/brand/unilever.webp`}
-        alt="Unilever"
-        width="168"
-        height="36"
-        class="h-[31.66px] w-auto md:h-9"
-        loading="lazy"
-      />
+      <!-- Os dois logos linkam para o site institucional de cada marca. O alt
+           é o texto do link (é o que o leitor de tela anuncia), e o hover é
+           opacidade, igual ao dos ícones de rede. -->
+      <a
+        href={UNILEVER_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex transition-opacity hover:opacity-60"
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}images/brand/unilever.webp`}
+          alt="Unilever"
+          width="168"
+          height="36"
+          class="h-[31.66px] w-auto md:h-9"
+          loading="lazy"
+        />
+      </a>
       <span class="h-[37.68px] w-px bg-[#4a4b53]/10 md:h-[43px]" aria-hidden="true"></span>
-      <img
-        src={`${import.meta.env.BASE_URL}images/brand/eureca.webp`}
-        alt="Eureca"
-        width="164"
-        height="30"
-        class="h-[26px] w-auto md:h-[30px]"
-        loading="lazy"
-      />
+      <a
+        href={EURECA_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex transition-opacity hover:opacity-60"
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}images/brand/eureca.webp`}
+          alt="Eureca"
+          width="164"
+          height="30"
+          class="h-[26px] w-auto md:h-[30px]"
+          loading="lazy"
+        />
+      </a>
     </div>
 
-    <!-- flex-wrap: são 6 ícones de 40px = 240px, que ainda cabem num viewport de
-         320px, mas sem folga nenhuma. O wrap é a rede de segurança para o dia
-         em que entrar a sétima rede. -->
-    <ul class="flex flex-wrap items-center justify-center">
+    <!-- flex-wrap: são 5 ícones de 40px + 4 gaps de 8px = 232px, que cabem num
+         viewport de 320px. O wrap é a rede de segurança para o dia em que
+         entrar mais uma rede. -->
+    <ul class="flex flex-wrap items-center justify-center gap-2">
       {
-        SOCIAL_LINKS.map((social) => {
-          const Icon = ICONS[social.icon];
-          return (
-            <li>
-              <a
-                href={social.href}
-                aria-label={social.label}
-                title={social.label}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex size-10 items-center justify-center rounded-full text-sky-dark transition-colors hover:text-sky"
-              >
-                <Icon class="size-6" />
-              </a>
-            </li>
-          );
-        })
+        SOCIAL_LINKS.map((social) => (
+          <li>
+            <a
+              href={social.href}
+              aria-label={social.label}
+              title={social.label}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex size-10 items-center justify-center rounded-full opacity-100 transition-opacity hover:opacity-60"
+            >
+              {/* O SVG exportado já vem 40x40 com o glifo centrado e na cor
+                  certa (#0066CC), então o img ocupa a caixa inteira: é o próprio
+                  arquivo que dá o tamanho e o alinhamento óptico do glifo.
+                  Como <img> não herda currentColor, o hover é opacidade. */}
+              <img
+                src={`${import.meta.env.BASE_URL}images/icons/icon-${social.icon.toLowerCase()}.svg`}
+                alt=""
+                width="40"
+                height="40"
+                class="size-10"
+                loading="lazy"
+              />
+            </a>
+          </li>
+        ))
       }
     </ul>
   </div>
