@@ -115,7 +115,9 @@ import { SOCIAL_LINKS, LEGAL_LINKS, MAATZ_URL, UNILEVER_URL, EURECA_URL } from '
       rel="noopener noreferrer"
       class="flex items-center gap-2 transition-opacity hover:opacity-80"
     >
-      <span class="body-sm">Desenvolvido por</span>
+      <!-- night sólido: o body-sm vem com night-70, que aqui deixava o crédito
+           mais apagado que a marca ao lado. A utility ganha do componente. -->
+      <span class="body-sm text-night">Desenvolvido por</span>
       <img
         src={`${import.meta.env.BASE_URL}images/brand/maatz.svg`}
         alt="Maatz"
