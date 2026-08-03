@@ -2,6 +2,7 @@
 import Button from '../Button.astro';
 import RevealText from '../RevealText.astro';
 import { inscricaoUrl } from '../../data/site';
+import { REQUISITOS } from '../../data/requisitos';
 
 /**
  * Pré-requisitos — fundo night, 3 cards de vidro + foto com o selo do programa.
@@ -18,25 +19,6 @@ import { inscricaoUrl } from '../../data/site';
  * no código exportado só vale para o topo. Medido no render: o CTA termina em
  * 969 e a seção em 1041.
  */
-
-const REQUISITOS = [
-  {
-    icone: `${import.meta.env.BASE_URL}images/icons/req-graduacao.svg`,
-    titulo: 'Graduação em andamento',
-    texto:
-      'Cursando alguma Instituição de Ensino Superior – Bacharel, Licenciatura ou Tecnólogo, com previsão de conclusão entre 12/2027 e 12/2028.',
-  },
-  {
-    icone: `${import.meta.env.BASE_URL}images/icons/req-hibrido.svg`,
-    titulo: 'Formato híbrido e presencial',
-    texto: 'Ter disponibilidade para estagiar em formato híbrido e presencial.',
-  },
-  {
-    icone: `${import.meta.env.BASE_URL}images/icons/req-horas.svg`,
-    titulo: '30 horas semanais',
-    texto: 'Ter disponibilidade para estagiar 30 horas semanais, sem compensação de horas (6h diárias).',
-  },
-];
 ---
 
 <img src={`${import.meta.env.BASE_URL}images/dividers/wave-end.svg`} alt="" aria-hidden="true" class="block h-[15.17px] w-full lg:h-14" />

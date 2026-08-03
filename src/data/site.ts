@@ -7,6 +7,24 @@
 export const INSCRICAO_URL = 'https://app.eureca.me/programas/019f413b-d816-74d6-bd34-8573ea9014cf/';
 
 /**
+ * Datas do processo, confirmadas pelo cliente: inscrições de 05/08 a 04/09 de
+ * 2026 e início na empresa em janeiro de 2027 — daí o nome do programa. Têm de
+ * bater com a seção "As fases do game" (src/data/jornada.ts).
+ *
+ * Formato ISO porque quem consome primeiro é o JSON-LD do JobPosting; o texto
+ * legível para humano fica em DATAS_LEGIVEIS.
+ */
+export const INSCRICOES_ABREM = '2026-08-05';
+export const INSCRICOES_FECHAM = '2026-09-04T23:59:59-03:00';
+export const INICIO_NA_EMPRESA = '2027-01-01';
+
+/** As mesmas datas escritas como a página fala delas. */
+export const DATAS_LEGIVEIS = {
+  inscricoes: 'de 05/08/2026 a 04/09/2026',
+  inicio: 'janeiro de 2027',
+} as const;
+
+/**
  * Origem de tudo que sai daqui: é sempre este hotsite. Fica numa constante
  * porque quem lê o relatório é o analytics do site de destino, onde um
  * `hotsite` genérico não diria de qual.

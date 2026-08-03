@@ -9,7 +9,7 @@
 - **Outras páginas:** nenhuma (single page)
 - **Fonte(s):** Century Gothic Paneuropean — Regular + Bold ⚠️ **licenciada, ver Pendências**
 - **Paleta base:** ver Design tokens
-- **Domínio final:** ⚠️ **pendente**
+- **Domínio final:** `https://estagiounilever.com.br` — já no `astro.config.mjs`. O DNS ainda não aponta: enquanto o deploy for o repo de projeto no GitHub Pages, o site vive em `/unilever-website/`. Ao apontar, trocar `base` por `'/'` e criar `public/CNAME`.
 - **Assinatura de rodapé:** Unilever + eureca · "Desenvolvido por Maatz"
 
 ---
@@ -94,7 +94,7 @@ de camada de imagem, resolvido em vanilla `motion` com zero hidratação.
 ## Pendências (bloqueantes até resposta)
 
 1. ~~**Fonte Century Gothic Paneuropean**~~ — ✅ **decidido:** rodar com **Jost** (Google Fonts) como fallback. O cliente entrega a Century Gothic depois. Para trocar: colocar os `.woff2` em `public/fonts/` e descomentar os dois `@font-face` no fim do bloco de tokens em `src/styles/global.css`. A Century já está na frente da cadeia `--font-sans`, então assume sozinha — **nenhuma outra linha do projeto muda**.
-2. **Domínio final** — necessário para canonical, OG e sitemap.
+2. ~~**Domínio final**~~ — ✅ `estagiounilever.com.br`, já configurado. Falta o DNS apontar; aí vêm o `base: '/'` e o `public/CNAME`. Só depois disso o `llms.txt` responde na raiz, que é onde a auditoria do Lighthouse procura.
 3. **Destino do CTA "Inscreva-se"** — URL do formulário de inscrição (Gupy/Eureca?).
 4. **Links reais:** redes sociais, Aviso de Cookies, Política de Privacidade.
 5. **Vídeo** — está com `rHH1sZPhw9U` (edição anterior do programa) via
@@ -102,6 +102,7 @@ de camada de imagem, resolvido em vanilla `motion` com zero hidratação.
 6. **Stories** — são links para conteúdos reais ou decorativos?
 7. **Foto do slide 2 do hero** — o asset de origem vem rotacionado 90° no Figma, e a rotação não sai no CSS exportado. Está usando o render do Figma (1x, 639×581) em vez do recorte 2x dos outros quatro. Fica levemente mais suave em tela retina. Resolve se o designer exportar a camada já na orientação final.
 8. **Dados do mapa** — lista completa de cidades/áreas por estado (o Figma mostra só São Paulo aberto).
+9. **Token do origin trial do WebMCP** — as tools em `src/components/WebMcp.astro` só ligam em produção com um token emitido para `estagiounilever.com.br` em [developer.chrome.com/origintrials](https://developer.chrome.com/origintrials) (trial "WebMCP"). O `<meta http-equiv="origin-trial">` já está no `<head>` do `Base.astro`, comentado, esperando o token. Sem token nada quebra — a API simplesmente não é encontrada. O trial vai até o **Chrome 156**: quando terminar, ou o recurso vira nativo, ou o componente sai. Para testar antes: `chrome://flags/#enable-webmcp-testing`.
 
 ---
 

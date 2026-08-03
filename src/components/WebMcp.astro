@@ -1,0 +1,146 @@
+---
+/**
+ * WebMCP — expõe o conteúdo da página como tools para agentes de IA.
+ *
+ * Padrão do W3C (webmachinelearning/webmcp) em origin trial no Chrome 149-156.
+ * Sem ele, um agente só consegue ler a página raspando pixel e DOM; com ele,
+ * pergunta direto "quais áreas tem em Recife?" e recebe dado estruturado.
+ *
+ * DUAS COISAS IMPORTANTES:
+ *
+ * 1. Em produção a API só liga com um token de origin trial amarrado ao
+ *    domínio — ver o TODO no <head> do Base.astro. Sem token, a detecção
+ *    abaixo simplesmente não encontra nada e o módulo não faz coisa alguma:
+ *    nenhum erro, nenhum peso. Para testar antes disso, ligue a flag
+ *    chrome://flags/#enable-webmcp-testing.
+ *
+ * 2. Todas as tools são SOMENTE LEITURA (`readOnlyHint`). Elas devolvem o que a
+ *    página já mostra — nenhuma envia formulário, grava nada ou navega por
+ *    conta própria. Inscrever-se continua sendo ato da pessoa, no site da
+ *    Eureca: a tool de inscrição entrega o link, não clica nele.
+ *
+ * Os dados vêm dos mesmos arquivos que a página renderiza (define:vars leva
+ * para o cliente), então nenhuma lista é reescrita à mão aqui.
+ */
+import { localidades } from '../data/localidades.js';
+import { PILARES, BENEFICIOS } from '../data/beneficios';
+import { REQUISITOS } from '../data/requisitos';
+import { FASES } from '../data/jornada';
+import { inscricaoUrl, DATAS_LEGIVEIS } from '../data/site';
+
+/** Só o que as tools respondem — ícone e coordenada de mapa não interessam. */
+const DADOS = {
+  inscricao: inscricaoUrl('webmcp'),
+  datas: DATAS_LEGIVEIS,
+  estados: localidades.map((uf) => ({
+    nome: uf.nome,
+    cidades: uf.cidades.map((c) => ({ nome: c.nome, areas: c.areas })),
+  })),
+  requisitos: REQUISITOS.map((r) => `${r.titulo}: ${r.texto}`),
+  pilares: PILARES.map((p) => `${p.titulo}: ${p.texto}`),
+  beneficios: BENEFICIOS.map((b) => b.texto.replace(/\*$/, '')),
+  fases: FASES.map((f) => `${f.titulo} — ${f.data}`),
+};
+---
+
+<script define:vars={{ DADOS }}>
+  // A API mudou de casa no meio do trial: nasceu em navigator.modelContext
+  // (Chrome 149) e foi para document.modelContext no 150, porque as tools
+  // pertencem à PÁGINA, não ao navegador. Tentamos a nova primeiro.
+  const mc = document.modelContext ?? navigator.modelContext;
+  if (mc && typeof mc.registerTool === 'function') {
+    // Schema de tool sem parâmetro. Objeto vazio, não `undefined`: a auditoria
+    // de esquemas do Lighthouse valida o JSON Schema de toda tool registrada.
+    const SEM_ENTRADA = { type: 'object', properties: {}, additionalProperties: false };
+
+    const listaDeCidades = () =>
+      DADOS.estados.map((uf) => `${uf.nome}: ${uf.cidades.map((c) => c.nome).join(', ')}`).join('\n');
+
+    const areasDe = (cidade) => {
+      const todas = DADOS.estados.flatMap((uf) =>
+        uf.cidades.map((c) => ({ ...c, estado: uf.nome }))
+      );
+      const alvo = cidade?.trim().toLowerCase();
+      // Sem cidade na entrada, devolve o mapa inteiro — é o comportamento útil
+      // para "em que áreas dá para estagiar?", que é como a pergunta costuma vir.
+      const escolhidas = alvo
+        ? todas.filter((c) => c.nome.toLowerCase().includes(alvo))
+        : todas;
+      if (!escolhidas.length) {
+        return `Não há vagas em "${cidade}". Cidades do programa: ${todas.map((c) => c.nome).join(', ')}.`;
+      }
+      return escolhidas
+        .map((c) => `${c.nome} (${c.estado}): ${c.areas.join(', ')}`)
+        .join('\n');
+    };
+
+    const TOOLS = [
+      {
+        name: 'listar_localidades',
+        description:
+          'Lista os estados e cidades do Brasil onde o Programa de Estágio Unilever 2027 tem vagas.',
+        inputSchema: SEM_ENTRADA,
+        execute: () => listaDeCidades(),
+      },
+      {
+        name: 'listar_areas_de_atuacao',
+        description:
+          'Lista as áreas de atuação (Marketing, Vendas, Supply Chain etc.) do estágio. Aceita uma cidade para filtrar; sem cidade, devolve todas.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            cidade: {
+              type: 'string',
+              description: 'Nome da cidade, por exemplo "Recife" ou "Valinhos".',
+            },
+          },
+          additionalProperties: false,
+        },
+        execute: (entrada) => areasDe(entrada?.cidade ?? entrada?.params?.cidade),
+      },
+      {
+        name: 'listar_pre_requisitos',
+        description:
+          'Diz quem pode se inscrever no Programa de Estágio Unilever 2027: formação, formato de trabalho e carga horária.',
+        inputSchema: SEM_ENTRADA,
+        execute: () => DADOS.requisitos.join('\n'),
+      },
+      {
+        name: 'listar_beneficios',
+        description: 'Lista os benefícios e os pilares de desenvolvimento oferecidos no estágio.',
+        inputSchema: SEM_ENTRADA,
+        execute: () =>
+          `${DADOS.pilares.join('\n')}\n\nBenefícios: ${DADOS.beneficios.join(', ')}.`,
+      },
+      {
+        name: 'etapas_do_processo_seletivo',
+        description:
+          'Descreve as fases do processo seletivo do estágio, na ordem, com o período de cada uma.',
+        inputSchema: SEM_ENTRADA,
+        execute: () =>
+          `Inscrições ${DADOS.datas.inscricoes}, início na empresa em ${DADOS.datas.inicio}.\n` +
+          DADOS.fases.map((f, i) => `${i + 1}. ${f}`).join('\n'),
+      },
+      {
+        name: 'link_de_inscricao',
+        description:
+          'Devolve o endereço do formulário oficial de inscrição, na plataforma da Eureca, e o prazo. Não inscreve ninguém: quem preenche é a pessoa candidata.',
+        inputSchema: SEM_ENTRADA,
+        execute: () =>
+          `Inscrições ${DADOS.datas.inscricoes} em ${DADOS.inscricao}`,
+      },
+    ];
+
+    for (const tool of TOOLS) {
+      try {
+        // readOnlyHint avisa ao agente que pode chamar sem pedir confirmação —
+        // é verdade: nenhuma destas tools muda estado nenhum.
+        mc.registerTool({ ...tool, annotations: { readOnlyHint: true } });
+      } catch (erro) {
+        // Uma tool recusada não pode derrubar as outras nem sujar o console de
+        // quem só está visitando o site.
+        console.debug('[webmcp] tool não registrada:', tool.name, erro);
+      }
+    }
+  }
+</script>

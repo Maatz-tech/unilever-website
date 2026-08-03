@@ -10,8 +10,12 @@ import sitemap from '@astrojs/sitemap';
 const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
 
 export default defineConfig({
-  // TODO: trocar pelo domínio final antes do deploy (ver PROJECT.md)
-  site: 'https://exemplo.com.br',
+  // Domínio final do hotsite. Alimenta canonical, og:url, sitemap, os @id do
+  // JSON-LD e os links do llms.txt.
+  site: 'https://estagiounilever.com.br',
+  // TODO: quando o DNS apontar para o domínio acima, trocar por base: '/' e
+  // criar public/CNAME — enquanto o deploy for o repo de projeto no GitHub
+  // Pages, tudo (inclusive robots.txt e llms.txt) vive sob /unilever-website/.
   base: isGithubActions ? '/unilever-website/' : '/',
   integrations: [sitemap()],
   vite: {

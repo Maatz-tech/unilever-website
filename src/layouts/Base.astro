@@ -2,6 +2,9 @@
 import '../styles/global.css';
 import { localidades as LOCALIDADES } from '../data/localidades.js';
 import { BENEFICIOS } from '../data/beneficios';
+import { REQUISITOS } from '../data/requisitos';
+import { INSCRICOES_ABREM, INSCRICOES_FECHAM, INICIO_NA_EMPRESA } from '../data/site';
+import WebMcp from '../components/WebMcp.astro';
 
 interface Props {
   title: string;
@@ -16,20 +19,11 @@ const {
   ogImage = '/og.jpg',
 } = Astro.props;
 
-// `site` vem do astro.config.mjs — TODO: trocar pelo domínio final
-const SITE_URL = Astro.site?.href ?? 'https://exemplo.com.br/';
+// `site` vem do astro.config.mjs
+const SITE_URL = Astro.site?.href ?? 'https://estagiounilever.com.br/';
 const canonical = new URL(Astro.url.pathname, SITE_URL).href;
 const FONTS = `${import.meta.env.BASE_URL}fonts/`;
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
-
-/**
- * Datas do processo, confirmadas pelo cliente: inscrições de 05/08 a 04/09 de
- * 2026 e início na empresa em janeiro de 2027 — daí o nome do programa. Têm de
- * bater com a seção "As fases do game".
- */
-const INSCRICOES_ABREM = '2026-08-05';
-const INSCRICOES_FECHAM = '2026-09-04T23:59:59-03:00';
-const INICIO_NA_EMPRESA = '2027-01-01';
 
 /** Structured data: a página é uma vaga de estágio + a organização */
 const jsonLd = {
@@ -51,12 +45,12 @@ const jsonLd = {
       '@type': 'JobPosting',
       '@id': `${SITE_URL}#vaga`,
       title: 'Estágio — Programa de Estágio Unilever 2027',
+      // A lista de pré-requisitos sai de src/data/requisitos.ts — a mesma que
+      // a seção renderiza, então a vaga não descreve regra diferente da página.
       description:
         '<p>Programa de Estágio Unilever 2027. Atuação em projetos reais, com mentoria de lideranças, contato com um negócio global e trilha de desenvolvimento.</p>' +
         '<h3>Pré-requisitos</h3><ul>' +
-        '<li>Cursando Instituição de Ensino Superior (bacharelado, licenciatura ou tecnólogo), com previsão de conclusão entre 12/2027 e 12/2028.</li>' +
-        '<li>Disponibilidade para estagiar em formato híbrido e presencial.</li>' +
-        '<li>Disponibilidade para 30 horas semanais (6h diárias), sem compensação de horas.</li>' +
+        REQUISITOS.map((r) => `<li>${r.texto}</li>`).join('') +
         '</ul>',
       datePosted: INSCRICOES_ABREM,
       validThrough: INSCRICOES_FECHAM,
@@ -99,6 +93,12 @@ const jsonLd = {
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <!-- WebMCP (origin trial do Chrome 149-156). A API só liga com um token
+         emitido para o domínio; sem ele o componente WebMcp.astro não acha a
+         API e não faz nada — não quebra.
+         TODO: registrar https://estagiounilever.com.br no trial "WebMCP" em
+         developer.chrome.com/origintrials e colar o token abaixo.
+    <meta http-equiv="origin-trial" content="COLE_O_TOKEN_AQUI" /> -->
     <!-- Google Tag Manager — o mais alto possível no head, como o GTM pede.
          is:inline para o Astro não empacotar nem mover o snippet: ele precisa
          rodar na hora, é ele que cria o dataLayer que o resto usa. -->
@@ -284,5 +284,9 @@ const jsonLd = {
         if (window.VLibras) new window.VLibras.Widget('https://vlibras.gov.br/app');
       });
     </script>
+
+    <!-- Tools para agentes de IA. Fica no fim do body porque não tem nada a ver
+         com o primeiro paint: é registro de API, não conteúdo. -->
+    <WebMcp />
   </body>
 </html>
