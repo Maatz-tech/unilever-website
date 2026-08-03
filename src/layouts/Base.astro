@@ -99,6 +99,22 @@ const jsonLd = {
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google Tag Manager — o mais alto possível no head, como o GTM pede.
+         is:inline para o Astro não empacotar nem mover o snippet: ele precisa
+         rodar na hora, é ele que cria o dataLayer que o resto usa. -->
+    <script is:inline>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', 'GTM-TLVV5RQ');
+    </script>
+    <!-- End Google Tag Manager -->
     <!-- marca que o JS está ativo ANTES do primeiro paint: o CSS usa isso para
          esconder os blocos que vão ser revelados. Sem JS, nada é escondido. -->
     <script is:inline>document.documentElement.classList.add('js');</script>
@@ -215,6 +231,18 @@ const jsonLd = {
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="min-h-screen">
+    <!-- Google Tag Manager (noscript) — logo depois do <body>, como o GTM pede.
+         Fica antes do skip link, mas não atrapalha: o iframe é 0x0 e escondido,
+         então não entra na ordem de foco nem é anunciado. -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-TLVV5RQ"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+        title="Google Tag Manager"></iframe></noscript
+    >
+    <!-- End Google Tag Manager (noscript) -->
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-sky focus:px-4 focus:py-2 focus:text-cloud"
