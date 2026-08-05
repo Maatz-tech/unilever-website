@@ -24,6 +24,23 @@ import { localidades } from '../../data/localidades.js';
 const noPrograma = new Set(localidades.map((l) => l.uf));
 const inicial = localidades[0];
 const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
+
+/**
+ * O mapa são duas camadas empilhadas no mesmo viewBox, então elas se alinham
+ * sozinhas em qualquer largura:
+ *
+ * 1. <img> com os 24 estados fora do programa. São 54 KB de desenho puro que
+ *    não precisam estar no HTML — o arquivo é gerado no build por
+ *    src/pages/images/map/brasil-base.svg.ts, a partir destes mesmos dados.
+ * 2. <svg> inline só com SP, MG e PE mais os pinos: é o que responde a clique,
+ *    foco e teclado, e o que muda de cor. Precisa do CSS e dos eventos da
+ *    página, então continua inline.
+ *
+ * O aspect-ratio sai do viewBox e segura o espaço antes de a imagem chegar,
+ * para o mapa não empurrar a página quando carregar.
+ */
+const MAPA_BASE = `${import.meta.env.BASE_URL}images/map/brasil-base.svg`;
+const [, , MAPA_W, MAPA_H] = VIEWBOX.split(' ').map(Number);
 ---
 
 <section id="localidades" class="bg-cloud py-[72px] lg:py-[120px]">
@@ -36,17 +53,27 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
     </header>
 
     <div class="grid gap-8 pt-6 lg:grid-cols-[minmax(0,592.2fr)_minmax(0,535.8fr)] lg:gap-16 lg:pt-[52px]">
-      <!-- ── mapa ─────────────────────────────────────────────────────── -->
-      <div class="self-center" data-reveal>
+      <!-- ── mapa: camada de fundo + estados clicáveis (ver frontmatter) ── -->
+      <div class="relative self-center" style={`aspect-ratio:${MAPA_W}/${MAPA_H}`} data-reveal>
+        <img
+          src={MAPA_BASE}
+          alt=""
+          width={MAPA_W}
+          height={MAPA_H}
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 h-full w-full"
+        />
         <svg
           viewBox={VIEWBOX}
-          class="h-auto w-full"
+          class="absolute inset-0 h-full w-full"
           role="group"
           aria-label="Mapa do Brasil com os estados do programa"
         >
           {
-            ufPaths.map((p: { uf: string; nome: string; d: string }) =>
-              noPrograma.has(p.uf) ? (
+            ufPaths
+              .filter((p: { uf: string }) => noPrograma.has(p.uf))
+              .map((p: { uf: string; nome: string; d: string }) => (
                 <path
                   d={p.d}
                   data-uf={p.uf}
@@ -58,10 +85,7 @@ const PLACE = `${import.meta.env.BASE_URL}images/map/place.svg`;
                   stroke="#fff"
                   stroke-width="1"
                 />
-              ) : (
-                <path d={p.d} fill="var(--color-map-off)" stroke="#fff" stroke-width="1" />
-              )
-            )
+              ))
           }
           {
             localidades.map((l: { pino: { cx: number; cy: number } }, i: number) => (

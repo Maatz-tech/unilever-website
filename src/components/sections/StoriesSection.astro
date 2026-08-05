@@ -433,11 +433,24 @@ import { STORIES } from '../../data/stories';
       let offsetInicial = 0;
       let percorrido = 0;
 
+      /** Teto de sanidade: 2 cópias do HTML + as 12 que o loop antigo permitia. */
+      const MAX_COPIAS = 14;
+
       /**
        * A faixa precisa ter, além do que está à vista, uma cópia inteira de
        * folga — senão sobra vão de um lado quando a tela é mais larga que a
        * lista. Duas cópias vêm do HTML; as demais são clonadas aqui, já que só
        * no cliente sabemos a largura da tela.
+       *
+       * Todas as leituras de layout acontecem antes da primeira escrita, e os
+       * clones entram de uma vez por um fragment. Antes isso era um `while` que
+       * lia `scrollWidth` depois de cada `appendChild`: cada volta forçava o
+       * browser a recalcular layout na hora, até 12 vezes — e de novo a cada
+       * resize, já que o ResizeObserver chama esta mesma função.
+       *
+       * Vale porque a faixa não tem `gap`: o respiro entre as cópias vem do
+       * `pr-4`/`pr-8` de cada <ul>, que já está dentro da largura medida. Com
+       * gap, `unidade` subestimaria e faltaria uma cópia.
        */
       const garantirCopias = () => {
         const primeira = faixa.firstElementChild as HTMLElement | null;
@@ -445,13 +458,19 @@ import { STORIES } from '../../data/stories';
         unidade = primeira.getBoundingClientRect().width;
         if (!unidade) return;
         const preciso = mascara.clientWidth + unidade * 2;
-        let guarda = 0;
-        while (faixa.scrollWidth < preciso && guarda++ < 12) {
+
+        const querSer = Math.min(Math.ceil(preciso / unidade), MAX_COPIAS);
+        const faltam = querSer - faixa.childElementCount;
+        if (faltam <= 0) return;
+
+        const lote = document.createDocumentFragment();
+        for (let i = 0; i < faltam; i++) {
           const clone = primeira.cloneNode(true) as HTMLElement;
           clone.setAttribute('aria-hidden', 'true');
           for (const b of clone.querySelectorAll('button')) b.tabIndex = -1;
-          faixa.appendChild(clone);
+          lote.appendChild(clone);
         }
+        faixa.appendChild(lote);
       };
 
       garantirCopias();

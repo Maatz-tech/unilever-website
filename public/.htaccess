@@ -1,0 +1,66 @@
+# Cache e compressão na Hostinger (Apache/LiteSpeed).
+#
+# Existe porque o Lighthouse apontou ~490 KiB re-baixados sem necessidade em
+# visitas repetidas: sem estes headers o servidor manda tudo com uma validade
+# curta e o browser volta a perguntar por arquivos que nunca mudam.
+#
+# Só vale no deploy da Hostinger. O GitHub Pages ignora .htaccess — lá os
+# headers são fixos e não configuráveis, então o preview segue sem isso.
+
+# ── Cache ──────────────────────────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Fallback para o que não cair em nenhuma regra abaixo.
+  ExpiresDefault "access plus 1 week"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Assets com hash no nome (dist/_astro/*): o conteúdo nunca muda sem o nome
+  # mudar junto, então podem ser imutáveis por um ano. É daqui que vem a maior
+  # parte do ganho.
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Fontes: 7 arquivos de ~48 KB, nome estável e conteúdo que não muda.
+  <FilesMatch "\.(woff2|woff|ttf|otf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Imagens e ícones. Sem hash no nome, então 30 dias em vez de um ano: se uma
+  # foto for trocada mantendo o nome, a volta é mais rápida.
+  <FilesMatch "\.(webp|avif|jpg|jpeg|png|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+
+  # HTML sempre revalidado: é o arquivo que aponta para todos os outros, e é
+  # por ele que um deploy novo chega ao usuário. Cacheá-lo prenderia a página
+  # em assets antigos.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # Idem para o que os crawlers leem: precisa refletir o deploy na hora.
+  <FilesMatch "^(robots\.txt|llms\.txt|sitemap.*\.xml|site\.webmanifest)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ── Compressão ─────────────────────────────────────────────────────────────
+# webp/woff2 ficam de fora de propósito: já são formatos comprimidos e passar
+# gzip neles gasta CPU para não ganhar bytes.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── Tipos ──────────────────────────────────────────────────────────────────
+# Alguns servidores compartilhados não conhecem estes por padrão e acabam
+# servindo como octet-stream, o que anula o cache e quebra o preload da fonte.
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType image/avif .avif
+  AddType application/manifest+json .webmanifest
+</IfModule>

@@ -68,22 +68,27 @@ import { NAV_LINKS, inscricaoUrl } from '../data/site';
     padding-block: 4px;
     transition: color 300ms ease;
   }
+  /* O sublinhado cresce por scaleX, não por width: width dispara layout a cada
+     frame e a animação não vai para a GPU. Com 2px de altura o border-radius
+     esticado é imperceptível. */
   .link-nav::after {
     content: '';
     position: absolute;
     left: 0;
     bottom: -2px;
     height: 2px;
-    width: 0;
+    width: 100%;
     border-radius: 999px;
     background: var(--color-sky);
-    transition: width 300ms ease;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 300ms ease;
   }
   .link-nav:hover {
     color: var(--color-sky);
   }
   .link-nav:hover::after {
-    width: 100%;
+    transform: scaleX(1);
   }
 </style>
 
