@@ -40,7 +40,6 @@ const jsonLd = {
       /**
        * A vaga em si. É o que faz um buscador (Google Jobs) e um agente
        * entenderem o programa: prazo, formato, localidades e requisitos.
-       * Só passa a valer quando o `noindex` sair, no lançamento.
        */
       '@type': 'JobPosting',
       '@id': `${SITE_URL}#vaga`,
@@ -120,9 +119,6 @@ const jsonLd = {
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <!-- Pré-lançamento: fora dos buscadores. Remover ao publicar (junto com o
-         Disallow do robots.txt). -->
-    <meta name="robots" content="noindex, nofollow" />
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
 

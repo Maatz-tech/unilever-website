@@ -1,5 +1,14 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Dois builds do mesmo commit, porque os destinos têm raízes diferentes:
+#
+#   1. GitHub Pages (preview, no ar em /unilever-website/) — build com
+#      DEPLOY_TARGET=pages, publicado automaticamente.
+#   2. Hostinger (produção, raiz do domínio) — build padrão, base '/', subido
+#      como artifact "dist-hostinger". Baixe em Actions > o run > Artifacts e
+#      jogue o conteúdo no public_html.
+#
+# A ordem importa: o deploy do Pages consome dist/ antes do segundo build
+# sobrescrever a pasta.
+name: Deploy Pages + build Hostinger
 
 on:
   # Runs on pushes targeting the default branch
@@ -22,7 +31,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -41,8 +49,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build (GitHub Pages, base /unilever-website/)
         run: npm run build
+        env:
+          DEPLOY_TARGET: pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -56,3 +66,15 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # A partir daqui é o build da Hostinger. Refaz dist/ do zero para não
+      # sobrar nada com o base do Pages dentro.
+      - name: Build (Hostinger, base /)
+        run: rm -rf dist && npm run build
+
+      - name: Upload dist para a Hostinger
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-hostinger
+          path: dist/
+          retention-days: 30
