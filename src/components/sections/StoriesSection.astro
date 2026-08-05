@@ -190,10 +190,10 @@ import { STORIES } from '../../data/stories';
     cursor: pointer;
     transition: transform 200ms ease;
   }
-  /* whileHover={{scale:1.06, y:-3}} / whileTap={{scale:0.95}} do legado */
-  .story-btn:hover {
-    transform: translateY(-3px) scale(1.06);
-  }
+  /* Sem transform no hover: o legado subia 3px e crescia 1.06 (whileHover do
+     Stories.jsx), mas numa faixa que anda sozinha o card fugia do cursor. O
+     retorno de hover fica só na cor do anel, na regra .group:hover .anel
+     acima. O whileTap={{scale:0.95}} continua, que é feedback de clique. */
   .story-btn:active {
     transform: scale(0.95);
   }
