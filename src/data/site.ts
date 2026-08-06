@@ -73,10 +73,10 @@ export const MAATZ_URL =
   'https://maatz.com.br/?utm_source=unilever-eureca&utm_medium=footer&utm_campaign=portfolio';
 
 /**
- * Vídeo do programa no YouTube.
- * TODO: trocar pelo vídeo de 2027 quando o cliente entregar (ver PROJECT.md).
+ * Vídeo do programa — reel do Instagram (@projectsunlightbr).
+ * O shortcode é o trecho depois de `/p/` na URL do post.
  */
-export const VIDEO_YOUTUBE_ID = 'rHH1sZPhw9U';
+export const VIDEO_INSTAGRAM_SHORTCODE = 'DbqaueUAi9r';
 
 export const NAV_LINKS = [
   { label: 'O programa', href: '#o-programa' },

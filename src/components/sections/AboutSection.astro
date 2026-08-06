@@ -106,15 +106,16 @@ const FOTOS = {
       <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
     </svg>
   </button>
-  <!-- iframe vazio até o clique: sem src, o YouTube não baixa nada nem
+  <!-- iframe vazio até o clique: sem src, o Instagram não baixa nada nem
        instala cookie de rastreio no carregamento da página. -->
   <div class="video-moldura">
     <iframe
       data-video-el
       src=""
       title="Vídeo do Programa de Estágio Unilever"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       referrerpolicy="strict-origin-when-cross-origin"
+      scrolling="no"
       allowfullscreen
       loading="lazy"
     ></iframe>
@@ -172,14 +173,20 @@ const FOTOS = {
     background: rgb(4 6 26 / 0.9);
   }
 
-  /* 16:9 mantido pela moldura, para o iframe não distorcer em nenhuma tela */
+  /* O card do embed do Instagram não é proporcional: são 208px fixos de
+     cabeçalho + rodapé mais a mídia, que ele sempre renderiza em 4:5 (mesmo
+     sendo um reel vertical). Daí a altura ser calc(largura * 1.25 + 208px) em
+     vez de um aspect-ratio — assim o iframe cabe exato e não abre scroll.
+
+     A largura já entra limitada pela altura da tela: de 1.25w + 208 ≤ 88dvh
+     sai w ≤ 70.4dvh − 166.4px, o terceiro termo do min(). */
   .video-moldura {
-    width: min(92vw, 1100px);
-    max-height: 82dvh;
-    aspect-ratio: 16 / 9;
+    --moldura-w: min(92vw, 400px, calc(70.4dvh - 166.4px));
+    width: var(--moldura-w);
+    height: calc(var(--moldura-w) * 1.25 + 208px);
     border-radius: 16px;
     overflow: hidden;
-    background: #000;
+    background: #fff;
   }
   .video-moldura iframe {
     width: 100%;
@@ -208,7 +215,7 @@ const FOTOS = {
 
 <script>
   import { revealOnScroll, revealWords, revealStagger, prefersReducedMotion } from '../../lib/motion';
-  import { VIDEO_YOUTUBE_ID } from '../../data/site';
+  import { VIDEO_INSTAGRAM_SHORTCODE } from '../../data/site';
 
   revealWords('#sobre-titulo');
   revealOnScroll('#o-programa [data-reveal]');
@@ -219,10 +226,9 @@ const FOTOS = {
   const player = dialog?.querySelector<HTMLIFrameElement>('[data-video-el]');
 
   if (dialog && player) {
-    // nocookie + enablejsapi para poder mandar o comando de pausa ao fechar
-    const embed =
-      `https://www.youtube-nocookie.com/embed/${VIDEO_YOUTUBE_ID}` +
-      '?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
+    // O embed do Instagram não aceita autoplay: o play é do usuário, dentro do
+    // iframe. Sem `/captioned` para não trazer a legenda do post junto.
+    const embed = `https://www.instagram.com/p/${VIDEO_INSTAGRAM_SHORTCODE}/embed/`;
 
     document.querySelector('[data-video-abrir]')?.addEventListener('click', () => {
       player.src = embed;
